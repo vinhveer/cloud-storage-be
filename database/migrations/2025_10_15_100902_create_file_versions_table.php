@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('file_extension', 20)->nullable();
             $table->string('mime_type', 100)->nullable();
             $table->bigInteger('file_size')->nullable();
-            $table->string('action', 30);
+            $table->enum('action', ['upload', 'update', 'restore']);
             $table->string('notes', 255)->nullable();
             $table->timestamps();
 
