@@ -1,0 +1,61 @@
+@baseUrl = http://localhost:8000
+@token = 1|E79QQzVVcMWMrvshrNuFsA3OFCRRCXamQAd05PYva24af1d8
+@parentId = 10
+
+### Health check
+GET {{baseUrl}}/api/health
+Accept: application/json
+
+### Create folder at root (200)
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "folder_name": "Tài liệu học kỳ 1"
+}
+
+### Create folder inside parent (200)
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "folder_name": "Bài tập",
+  "parent_folder_id": {{parentId}}
+}
+
+### Missing folder_name (422)
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "parent_folder_id": 1
+}
+
+### Invalid/non-owned parent (404)
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "folder_name": "Tài liệu học kỳ 2",
+  "parent_folder_id": 999999
+}
+
+### folder_name too long (422)
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "folder_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}
+
+
