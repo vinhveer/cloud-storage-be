@@ -1,9 +1,0 @@
-### Health HTTP tests
-
-@base=http://localhost:8000
-@json=application/json
-
-### Health check
-GET {{base}}/api/health
-Accept: {{json}}
-
