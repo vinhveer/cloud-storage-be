@@ -197,5 +197,3 @@ SystemConfig::where('config_key', 'default_storage_limit')->value('config_value'
 - Đảm bảo index/unique phù hợp: email của `User`, `(file_id, version_number)` của `FileVersion`, `token` của `PublicLink`.
 - Kiểm thử quan hệ chéo chủ sở hữu: `File.user_id === Folder.user_id`.
 - Rõ ràng về enum `permission` và `shareable_type` (validate ở FormRequest/DB check constraint nếu có).
-
-

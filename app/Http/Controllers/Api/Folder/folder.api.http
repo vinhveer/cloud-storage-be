@@ -1,10 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = 1|E79QQzVVcMWMrvshrNuFsA3OFCRRCXamQAd05PYva24af1d8
+@token = 3|iPFiIQdB7O8VrkaYxh1bPhtL7gox7BxEgO3zrD9m0dce07a0
 @parentId = 10
-
-### Health check
-GET {{baseUrl}}/api/health
-Accept: application/json
 
 ### Create folder at root (200)
 POST {{baseUrl}}/api/folders

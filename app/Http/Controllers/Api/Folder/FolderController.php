@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Folder;
 
+use App\Http\Controllers\Api\BaseApiController;
+use App\Support\Traits\WithDevTrace;
 use App\Http\Requests\StoreFolderRequest;
 use App\Services\FolderService;
 use Illuminate\Support\Facades\Auth;
 
 class FolderController extends BaseApiController
 {
+    use WithDevTrace;
     public function __construct(private readonly FolderService $folderService)
     {
     }
@@ -33,5 +36,6 @@ class FolderController extends BaseApiController
         ]);
     }
 }
+
 
 

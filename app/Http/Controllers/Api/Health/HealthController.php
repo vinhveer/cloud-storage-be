@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Health;
+
+use App\Http\Controllers\Api\BaseApiController;
 
 class HealthController extends BaseApiController
 {
@@ -9,5 +11,6 @@ class HealthController extends BaseApiController
         return $this->ok(['status' => 'ok']);
     }
 }
+
 
 

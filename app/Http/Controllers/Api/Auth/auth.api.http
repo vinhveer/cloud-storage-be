@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:8000
+@email = vinhnguyen@gmail.com
+@password = 12345678
+@token = 3|iPFiIQdB7O8VrkaYxh1bPhtL7gox7BxEgO3zrD9m0dce07a0
+
+### @name login
+POST {{baseUrl}}/api/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{"email":"{{email}}","password":"{{password}}","device_name":"cli"}
+
+### @name me
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### @name register
+POST {{baseUrl}}/api/auth/register
+Accept: application/json
+Content-Type: application/json
+
+{"name":"New User","email":"{{email}}","password":"{{password}}","password_confirmation":"{{password}}","device_name":"cli"}
+
+### Logout current token
+POST {{baseUrl}}/api/auth/logout
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Logout all tokens
+POST {{baseUrl}}/api/auth/logout-all
+Accept: application/json
+Authorization: Bearer {{token}}
+
+

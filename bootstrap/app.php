@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(App\Http\Middleware\ForceJson::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->renderable(function (Throwable $e) {
+        $exceptions->renderable(function (Throwable $e, $request) {
             if ($e instanceof App\Exceptions\ApiException) {
                 return response()->json([
                     'success' => false,
@@ -28,7 +28,25 @@ return Application::configure(basePath: dirname(__DIR__))
                     'meta' => null,
                 ], $e->status);
             }
-            return null;
+            // Hide unhandled errors by default; only reveal details when DEV_REPORT=true
+            $allowTrace = filter_var(env('DEV_REPORT', false), FILTER_VALIDATE_BOOLEAN) === true;
+
+            $payload = [
+                'success' => false,
+                'data' => null,
+                'error' => [
+                    'message' => $allowTrace ? ($e->getMessage() ?: 'Invalid error') : 'Invalid error',
+                    'code' => 'INTERNAL_ERROR',
+                    'errors' => null,
+                ],
+                'meta' => $allowTrace ? [
+                    'exception' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ] : null,
+            ];
+
+            return response()->json($payload, 500);
         });
         $exceptions->renderable(function (App\Exceptions\DomainValidationException $e) {
             return response()->json([

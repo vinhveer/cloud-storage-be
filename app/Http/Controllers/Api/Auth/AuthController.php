@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
+use App\Http\Controllers\Api\BaseApiController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
@@ -76,5 +77,6 @@ class AuthController extends BaseApiController
         return $this->ok(['message' => 'Logged out from all devices.']);
     }
 }
+
 
 
