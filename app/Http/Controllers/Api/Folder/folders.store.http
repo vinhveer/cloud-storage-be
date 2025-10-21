@@ -1,11 +1,6 @@
 @baseUrl = http://localhost:8000
-<<<<<<<< HEAD:app/Http/Controllers/Api/Folder/folder.api.http
-@token = 3|iPFiIQdB7O8VrkaYxh1bPhtL7gox7BxEgO3zrD9m0dce07a0
-@parentId = 10
-========
-@token = {{token}}
+@token = 8|7bAj4ptroGcquSar5gBuXrPRArW7QzriXtznYcAif2c08146
 @parentId = 7
->>>>>>>> ttri:app/Http/Controllers/Api/Folder/folders.store.http
 
 ### Create folder at root (200)
 POST {{baseUrl}}/api/folders
@@ -14,7 +9,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "folder_name": "Tài liệu học kỳ 1"
+  "folder_name": "Tài liệu học kỳ 2"
 }
 
 ### Create folder inside parent (200)

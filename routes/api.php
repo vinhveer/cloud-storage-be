@@ -54,18 +54,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/trash/empty', [\App\Http\Controllers\Api\Trash\TrashController::class, 'emptyTrash']);
 
     // Folders
-    Route::post('/folders', [\App\Http\Controllers\Api\FolderController::class, 'store']);
-    Route::get('/folders', [\App\Http\Controllers\Api\FolderController::class, 'index']);
-    Route::get('/folders/tree', [\App\Http\Controllers\Api\FolderController::class, 'tree']);
-    Route::get('/folders/{id}/breadcrumb', [\App\Http\Controllers\Api\FolderController::class, 'breadcrumb']);
-    Route::get('/folders/{id}/contents', [\App\Http\Controllers\Api\FolderController::class, 'contents']);
-    Route::get('/folders/{id}', [\App\Http\Controllers\Api\FolderController::class, 'show']);
-    Route::put('/folders/{id}', [\App\Http\Controllers\Api\FolderController::class, 'update']);
-    Route::delete('/folders/{id}', [\App\Http\Controllers\Api\FolderController::class, 'destroy']);
-    Route::post('/folders/{id}/restore', [\App\Http\Controllers\Api\FolderController::class, 'restore']);
-    Route::delete('/folders/{id}/force', [\App\Http\Controllers\Api\FolderController::class, 'forceDelete']);
-    Route::post('/folders/{id}/copy', [\App\Http\Controllers\Api\FolderController::class, 'copy']);
-    Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\FolderController::class, 'move']);
+    Route::post('/folders', [\App\Http\Controllers\Api\Folder\FolderController::class, 'store']);
+    Route::get('/folders', [\App\Http\Controllers\Api\Folder\FolderController::class, 'index']);
+    Route::get('/folders/tree', [\App\Http\Controllers\Api\Folder\FolderController::class, 'tree']);
+    Route::get('/folders/{id}/breadcrumb', [\App\Http\Controllers\Api\Folder\FolderController::class, 'breadcrumb']);
+    Route::get('/folders/{id}/contents', [\App\Http\Controllers\Api\Folder\FolderController::class, 'contents']);
+    Route::get('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'show']);
+    Route::put('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'update']);
+    Route::delete('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'destroy']);
+    Route::post('/folders/{id}/restore', [\App\Http\Controllers\Api\Folder\FolderController::class, 'restore']);
+    Route::delete('/folders/{id}/force', [\App\Http\Controllers\Api\Folder\FolderController::class, 'forceDelete']);
+    Route::post('/folders/{id}/copy', [\App\Http\Controllers\Api\Folder\FolderController::class, 'copy']);
+    Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\Folder\FolderController::class, 'move']);
 
     // Shares
     Route::post('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'store']);

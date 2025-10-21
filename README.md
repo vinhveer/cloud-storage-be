@@ -23,7 +23,7 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ### Project docs
 
-- Kiến trúc & quy ước: `docs/architecture.md`
+-   Kiến trúc & quy ước: `docs/architecture.md`
 
 ## Learning Laravel
 
@@ -70,4 +70,4 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 For consolidated project documentation (endpoints, architecture, implementation guide), see:
 
--   docs/ALL_IN_ONE.md
+-   PROJECT_DOCS.md
