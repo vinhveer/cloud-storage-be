@@ -1,29 +1,18 @@
 @baseUrl = http://localhost:8000
-@email = trinn@gmail.com
-@password = secret
-@token = 
-
+@email = trinnn@gmail.com
+@password = 12345678
+@token = 5|hS5pmMxduzqfcrZj7QRkCSriPm60fHGCKMXOz5Ozcedf37da
 ### @name login
-### Login (Token-based, returns Personal Access Token)
 POST {{baseUrl}}/api/auth/login
 Accept: application/json
 Content-Type: application/json
 
-{"email":"{{email}}","password":"{{password}}","device_name":"cli"}
+{
+  "email": "trinnn@gmail.com",
+  "password": "12345678",
+  "device_name": "cli"
+}
 
-> {% 
-  try {
-    const body = JSON.parse(response.body);
-    if (body && body.data && body.data.token) {
-      client.global.set("token", body.data.token);
-      console.log("Token captured to variable: token");
-    } else {
-      console.log("No token in response at data.token");
-    }
-  } catch (e) {
-    console.log("Failed parsing response JSON");
-  }
-%}
 
 ### @name me
 ### Me (requires Bearer token)
@@ -38,20 +27,6 @@ Accept: application/json
 Content-Type: application/json
 
 {"name":"New User","email":"{{email}}","password":"{{password}}","password_confirmation":"{{password}}","device_name":"cli"}
-
-> {% 
-  try {
-    const body = JSON.parse(response.body);
-    if (body && body.data && body.data.token) {
-      client.global.set("token", body.data.token);
-      console.log("Token captured to variable: token (register)");
-    } else {
-      console.log("No token in response at data.token (register)");
-    }
-  } catch (e) {
-    console.log("Failed parsing response JSON (register)");
-  }
-%}
 
 ### Logout current token
 POST {{baseUrl}}/api/auth/logout

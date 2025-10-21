@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:8000
+@token = 5|hS5pmMxduzqfcrZj7QRkCSriPm60fHGCKMXOz5Ozcedf37da
+@parentId = 7
+@page = 1
+@perPage = 10
+
+### Health check
+GET {{baseUrl}}/api/health
+Accept: application/json
+
+### List root folders (200)
+GET {{baseUrl}}/api/folders
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### List children of a parent (200)
+GET {{baseUrl}}/api/folders?parent_id={{parentId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Pagination (200)
+GET {{baseUrl}}/api/folders?parent_id={{parentId}}&page={{page}}&per_page={{perPage}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Invalid/non-owned parent (404)
+GET {{baseUrl}}/api/folders?parent_id=999999
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Unauthenticated (401)
+GET {{baseUrl}}/api/folders
+Accept: application/json

@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = 1|E79QQzVVcMWMrvshrNuFsA3OFCRRCXamQAd05PYva24af1d8
-@parentId = 10
+@token = {{token}}
+@parentId = 7
 
 ### Health check
 GET {{baseUrl}}/api/health
@@ -57,5 +57,3 @@ Authorization: Bearer {{token}}
 {
   "folder_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
-
-
