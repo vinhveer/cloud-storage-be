@@ -14,6 +14,23 @@ class FolderRepository
             ->first();
     }
 
+    public function paginateChildrenByUser(?int $parentId, int $userId, int $page = 1, int $perPage = 15): array
+    {
+        $query = Folder::query()
+            ->where('user_id', $userId)
+            ->where('is_deleted', false)
+            ->when($parentId !== null, fn($q) => $q->where('fol_folder_id', $parentId), fn($q) => $q->whereNull('fol_folder_id'))
+            ->orderByDesc('id');
+
+        $total = (clone $query)->count();
+        $items = $query->forPage($page, $perPage)->get(['id', 'folder_name', 'fol_folder_id', 'created_at']);
+
+        return [
+            'items' => $items,
+            'total' => $total,
+        ];
+    }
+
     public function create(User $user, ?Folder $parent, string $folderName): Folder
     {
         return Folder::create([

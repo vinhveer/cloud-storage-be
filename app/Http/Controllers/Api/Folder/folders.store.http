@@ -1,6 +1,11 @@
 @baseUrl = http://localhost:8000
+<<<<<<<< HEAD:app/Http/Controllers/Api/Folder/folder.api.http
+@token = 3|iPFiIQdB7O8VrkaYxh1bPhtL7gox7BxEgO3zrD9m0dce07a0
+@parentId = 10
+========
 @token = {{token}}
 @parentId = 7
+>>>>>>>> ttri:app/Http/Controllers/Api/Folder/folders.store.http
 
 ### Create folder at root (200)
 POST {{baseUrl}}/api/folders
