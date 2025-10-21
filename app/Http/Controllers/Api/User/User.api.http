@@ -1,0 +1,33 @@
+### User HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Get user profile
+GET {{base}}/api/user
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Update profile
+PUT {{base}}/api/user/profile
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "name": "New Name"
+}
+
+### Update password
+PUT {{base}}/api/user/password
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "current_password": "oldpass",
+  "password": "newpass",
+  "password_confirmation": "newpass"
+}
+

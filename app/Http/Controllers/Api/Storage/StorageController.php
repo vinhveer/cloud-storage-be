@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Storage;
+
+use App\Http\Controllers\Api\BaseApiController;
 
 class StorageController extends BaseApiController
 {

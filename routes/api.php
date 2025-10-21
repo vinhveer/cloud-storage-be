@@ -5,53 +5,53 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', \App\Http\Controllers\Api\Health\HealthController::class);
 
 // Auth
-Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
-Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
-Route::post('/forgot-password', [\App\Http\Controllers\Api\PasswordController::class, 'forgot']);
-Route::post('/reset-password', [\App\Http\Controllers\Api\PasswordController::class, 'reset']);
-Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerificationController::class, 'verify']);
-Route::post('/email/resend', [\App\Http\Controllers\Api\EmailVerificationController::class, 'resend']);
+Route::post('/register', [\App\Http\Controllers\Api\Auth\AuthController::class, 'register']);
+Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class, 'login']);
+Route::post('/forgot-password', [\App\Http\Controllers\Api\Password\PasswordController::class, 'forgot']);
+Route::post('/reset-password', [\App\Http\Controllers\Api\Password\PasswordController::class, 'reset']);
+Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify']);
+Route::post('/email/resend', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'resend']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Session
-    Route::post('/auth/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
-    Route::post('/auth/logout-all', [\App\Http\Controllers\Api\AuthController::class, 'logoutAll']);
-    Route::get('/auth/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
+    Route::post('/auth/logout', [\App\Http\Controllers\Api\Auth\AuthController::class, 'logout']);
+    Route::post('/auth/logout-all', [\App\Http\Controllers\Api\Auth\AuthController::class, 'logoutAll']);
+    Route::get('/auth/me', [\App\Http\Controllers\Api\Auth\AuthController::class, 'me']);
 
     // User profile
-    Route::get('/user', [\App\Http\Controllers\Api\UserController::class, 'show']);
-    Route::put('/user/profile', [\App\Http\Controllers\Api\UserController::class, 'updateProfile']);
-    Route::put('/user/password', [\App\Http\Controllers\Api\UserController::class, 'updatePassword']);
+    Route::get('/user', [\App\Http\Controllers\Api\User\UserController::class, 'show']);
+    Route::put('/user/profile', [\App\Http\Controllers\Api\User\UserController::class, 'updateProfile']);
+    Route::put('/user/password', [\App\Http\Controllers\Api\User\UserController::class, 'updatePassword']);
 
     // Files
-    Route::post('/files', [\App\Http\Controllers\Api\FileController::class, 'store']);
-    Route::get('/files', [\App\Http\Controllers\Api\FileController::class, 'index']);
-    Route::get('/files/recent', [\App\Http\Controllers\Api\FileController::class, 'recent']);
-    Route::get('/files/shared-with-me', [\App\Http\Controllers\Api\FileController::class, 'sharedWithMe']);
-    Route::get('/files/shared-by-me', [\App\Http\Controllers\Api\FileController::class, 'sharedByMe']);
-    Route::get('/files/{id}', [\App\Http\Controllers\Api\FileController::class, 'show']);
-    Route::get('/files/{id}/download', [\App\Http\Controllers\Api\FileController::class, 'download']);
-    Route::put('/files/{id}', [\App\Http\Controllers\Api\FileController::class, 'update']);
-    Route::delete('/files/{id}', [\App\Http\Controllers\Api\FileController::class, 'destroy']);
-    Route::post('/files/{id}/restore', [\App\Http\Controllers\Api\FileController::class, 'restore']);
-    Route::delete('/files/{id}/force', [\App\Http\Controllers\Api\FileController::class, 'forceDelete']);
-    Route::post('/files/{id}/copy', [\App\Http\Controllers\Api\FileController::class, 'copy']);
-    Route::post('/files/{id}/move', [\App\Http\Controllers\Api\FileController::class, 'move']);
+    Route::post('/files', [\App\Http\Controllers\Api\File\FileController::class, 'store']);
+    Route::get('/files', [\App\Http\Controllers\Api\File\FileController::class, 'index']);
+    Route::get('/files/recent', [\App\Http\Controllers\Api\File\FileController::class, 'recent']);
+    Route::get('/files/shared-with-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedWithMe']);
+    Route::get('/files/shared-by-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedByMe']);
+    Route::get('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'show']);
+    Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download']);
+    Route::put('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'update']);
+    Route::delete('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'destroy']);
+    Route::post('/files/{id}/restore', [\App\Http\Controllers\Api\File\FileController::class, 'restore']);
+    Route::delete('/files/{id}/force', [\App\Http\Controllers\Api\File\FileController::class, 'forceDelete']);
+    Route::post('/files/{id}/copy', [\App\Http\Controllers\Api\File\FileController::class, 'copy']);
+    Route::post('/files/{id}/move', [\App\Http\Controllers\Api\File\FileController::class, 'move']);
 
     // File versions
-    Route::post('/files/{id}/versions', [\App\Http\Controllers\Api\FileVersionController::class, 'store']);
-    Route::get('/files/{id}/versions', [\App\Http\Controllers\Api\FileVersionController::class, 'index']);
-    Route::get('/files/{id}/versions/{versionId}', [\App\Http\Controllers\Api\FileVersionController::class, 'show']);
-    Route::get('/files/{id}/versions/{versionId}/download', [\App\Http\Controllers\Api\FileVersionController::class, 'download']);
-    Route::post('/files/{id}/versions/{versionId}/restore', [\App\Http\Controllers\Api\FileVersionController::class, 'restore']);
-    Route::delete('/files/{id}/versions/{versionId}', [\App\Http\Controllers\Api\FileVersionController::class, 'destroy']);
+    Route::post('/files/{id}/versions', [\App\Http\Controllers\Api\File\FileVersionController::class, 'store']);
+    Route::get('/files/{id}/versions', [\App\Http\Controllers\Api\File\FileVersionController::class, 'index']);
+    Route::get('/files/{id}/versions/{versionId}', [\App\Http\Controllers\Api\File\FileVersionController::class, 'show']);
+    Route::get('/files/{id}/versions/{versionId}/download', [\App\Http\Controllers\Api\File\FileVersionController::class, 'download']);
+    Route::post('/files/{id}/versions/{versionId}/restore', [\App\Http\Controllers\Api\File\FileVersionController::class, 'restore']);
+    Route::delete('/files/{id}/versions/{versionId}', [\App\Http\Controllers\Api\File\FileVersionController::class, 'destroy']);
 
     // Trash
-    Route::get('/trash/files', [\App\Http\Controllers\Api\TrashController::class, 'files']);
-    Route::get('/trash/folders', [\App\Http\Controllers\Api\TrashController::class, 'folders']);
-    Route::post('/trash/{id}/restore', [\App\Http\Controllers\Api\TrashController::class, 'restore']);
-    Route::delete('/trash/{id}', [\App\Http\Controllers\Api\TrashController::class, 'destroy']);
-    Route::delete('/trash/empty', [\App\Http\Controllers\Api\TrashController::class, 'emptyTrash']);
+    Route::get('/trash/files', [\App\Http\Controllers\Api\Trash\TrashController::class, 'files']);
+    Route::get('/trash/folders', [\App\Http\Controllers\Api\Trash\TrashController::class, 'folders']);
+    Route::post('/trash/{id}/restore', [\App\Http\Controllers\Api\Trash\TrashController::class, 'restore']);
+    Route::delete('/trash/{id}', [\App\Http\Controllers\Api\Trash\TrashController::class, 'destroy']);
+    Route::delete('/trash/empty', [\App\Http\Controllers\Api\Trash\TrashController::class, 'emptyTrash']);
 
     // Folders
     Route::post('/folders', [\App\Http\Controllers\Api\FolderController::class, 'store']);
@@ -68,55 +68,55 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\FolderController::class, 'move']);
 
     // Shares
-    Route::post('/shares', [\App\Http\Controllers\Api\ShareController::class, 'store']);
-    Route::get('/shares', [\App\Http\Controllers\Api\ShareController::class, 'index']);
-    Route::get('/shares/received', [\App\Http\Controllers\Api\ShareController::class, 'received']);
-    Route::get('/shares/{id}', [\App\Http\Controllers\Api\ShareController::class, 'show']);
-    Route::put('/shares/{id}', [\App\Http\Controllers\Api\ShareController::class, 'update']);
-    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\ShareController::class, 'destroy']);
-    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\ShareController::class, 'addUsers']);
-    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\ShareController::class, 'removeUser']);
-    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\ShareController::class, 'updateUserPermission']);
+    Route::post('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'store']);
+    Route::get('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'index']);
+    Route::get('/shares/received', [\App\Http\Controllers\Api\Share\ShareController::class, 'received']);
+    Route::get('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'show']);
+    Route::put('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'update']);
+    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'destroy']);
+    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\Share\ShareController::class, 'addUsers']);
+    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'removeUser']);
+    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'updateUserPermission']);
 
     // Storage
-    Route::get('/storage/usage', [\App\Http\Controllers\Api\StorageController::class, 'usage']);
-    Route::get('/storage/breakdown', [\App\Http\Controllers\Api\StorageController::class, 'breakdown']);
-    Route::get('/storage/limit', [\App\Http\Controllers\Api\StorageController::class, 'limit']);
+    Route::get('/storage/usage', [\App\Http\Controllers\Api\Storage\StorageController::class, 'usage']);
+    Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageController::class, 'breakdown']);
+    Route::get('/storage/limit', [\App\Http\Controllers\Api\Storage\StorageController::class, 'limit']);
 
     // Dashboard
-    Route::get('/dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'overview']);
-    Route::get('/dashboard/recent', [\App\Http\Controllers\Api\DashboardController::class, 'recent']);
-    Route::get('/dashboard/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
+    Route::get('/dashboard', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'overview']);
+    Route::get('/dashboard/recent', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'recent']);
+    Route::get('/dashboard/stats', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'stats']);
 
     // Bulk files
-    Route::post('/files/bulk-delete', [\App\Http\Controllers\Api\FileBulkController::class, 'bulkDelete']);
-    Route::post('/files/bulk-move', [\App\Http\Controllers\Api\FileBulkController::class, 'bulkMove']);
-    Route::post('/files/bulk-copy', [\App\Http\Controllers\Api\FileBulkController::class, 'bulkCopy']);
-    Route::post('/files/bulk-share', [\App\Http\Controllers\Api\FileBulkController::class, 'bulkShare']);
-    Route::post('/files/bulk-download', [\App\Http\Controllers\Api\FileBulkController::class, 'bulkDownload']);
+    Route::post('/files/bulk-delete', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkDelete']);
+    Route::post('/files/bulk-move', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkMove']);
+    Route::post('/files/bulk-copy', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkCopy']);
+    Route::post('/files/bulk-share', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkShare']);
+    Route::post('/files/bulk-download', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkDownload']);
 });
 
 // Public links (no auth)
-Route::get('/public-links/{token}', [\App\Http\Controllers\Api\PublicLinkController::class, 'showByToken']);
-Route::get('/public-links/{token}/preview', [\App\Http\Controllers\Api\PublicLinkController::class, 'preview']);
-Route::get('/public-links/{token}/download', [\App\Http\Controllers\Api\PublicLinkController::class, 'download']);
+Route::get('/public-links/{token}', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'showByToken']);
+Route::get('/public-links/{token}/preview', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'preview']);
+Route::get('/public-links/{token}/download', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'download']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Auth-required public link management
-    Route::post('/public-links', [\App\Http\Controllers\Api\PublicLinkController::class, 'store']);
-    Route::get('/public-links', [\App\Http\Controllers\Api\PublicLinkController::class, 'index']);
-    Route::delete('/public-links/{id}', [\App\Http\Controllers\Api\PublicLinkController::class, 'destroy']);
-    Route::put('/public-links/{id}', [\App\Http\Controllers\Api\PublicLinkController::class, 'update']);
-    Route::post('/public-links/{id}/revoke', [\App\Http\Controllers\Api\PublicLinkController::class, 'revoke']);
-    Route::get('/files/{id}/public-links', [\App\Http\Controllers\Api\PublicLinkController::class, 'forFile']);
+    Route::post('/public-links', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'store']);
+    Route::get('/public-links', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'index']);
+    Route::delete('/public-links/{id}', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'destroy']);
+    Route::put('/public-links/{id}', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'update']);
+    Route::post('/public-links/{id}/revoke', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'revoke']);
+    Route::get('/files/{id}/public-links', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'forFile']);
 });
 
 // Search (auth required)
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
-    Route::get('/search/files', [\App\Http\Controllers\Api\SearchController::class, 'files']);
-    Route::get('/search/folders', [\App\Http\Controllers\Api\SearchController::class, 'folders']);
-    Route::get('/search/suggestions', [\App\Http\Controllers\Api\SearchController::class, 'suggestions']);
+    Route::get('/search', [\App\Http\Controllers\Api\Search\SearchController::class, 'search']);
+    Route::get('/search/files', [\App\Http\Controllers\Api\Search\SearchController::class, 'files']);
+    Route::get('/search/folders', [\App\Http\Controllers\Api\Search\SearchController::class, 'folders']);
+    Route::get('/search/suggestions', [\App\Http\Controllers\Api\Search\SearchController::class, 'suggestions']);
 });
 
 // Admin group (auth + admin middleware placeholder)

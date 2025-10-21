@@ -1,0 +1,21 @@
+### Dashboard HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Get dashboard overview
+GET {{base}}/api/dashboard
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get recent activities
+GET {{base}}/api/dashboard/recent
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get stats
+GET {{base}}/api/dashboard/stats
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

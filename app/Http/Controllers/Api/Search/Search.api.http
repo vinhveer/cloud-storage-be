@@ -1,0 +1,26 @@
+### Search HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Search all
+GET {{base}}/api/search?q=document
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Search files only
+GET {{base}}/api/search/files?q=pdf
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Search folders only
+GET {{base}}/api/search/folders?q=project
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get search suggestions
+GET {{base}}/api/search/suggestions?q=doc
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

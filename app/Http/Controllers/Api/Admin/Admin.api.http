@@ -1,0 +1,53 @@
+### Admin HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_ADMIN_TOKEN_HERE
+
+### List users
+GET {{base}}/api/admin/users
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get user details
+GET {{base}}/api/admin/users/1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Create user
+POST {{base}}/api/admin/users
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "password123"
+}
+
+### Update storage limit
+PUT {{base}}/api/admin/users/1/storage-limit
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "storage_limit": 10737418240
+}
+
+### Storage overview
+GET {{base}}/api/admin/storage/overview
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### List configs
+GET {{base}}/api/admin/configs
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Admin dashboard
+GET {{base}}/api/admin/dashboard
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

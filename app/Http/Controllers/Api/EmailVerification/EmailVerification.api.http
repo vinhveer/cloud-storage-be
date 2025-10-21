@@ -1,0 +1,18 @@
+### EmailVerification HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+
+### Verify email
+POST {{base}}/api/email/verify/1?expires=1234567890&signature=abc123
+Accept: {{json}}
+
+### Resend verification email
+POST {{base}}/api/email/resend
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "user@example.com"
+}
+

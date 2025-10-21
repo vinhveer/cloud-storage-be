@@ -1,0 +1,54 @@
+### Share HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Create share
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "resource_type": "file",
+  "resource_id": 1,
+  "users": [2, 3],
+  "permission": "read"
+}
+
+### List my shares
+GET {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### List received shares
+GET {{base}}/api/shares/received
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Update share
+PUT {{base}}/api/shares/1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "permission": "write"
+}
+
+### Add users to share
+POST {{base}}/api/shares/1/users
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "user_ids": [4, 5]
+}
+
+### Remove user from share
+DELETE {{base}}/api/shares/1/users/2
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

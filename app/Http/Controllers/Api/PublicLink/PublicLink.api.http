@@ -1,0 +1,39 @@
+### PublicLink HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Create public link
+POST {{base}}/api/public-links
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "file_id": 1,
+  "expires_at": "2025-12-31"
+}
+
+### List public links
+GET {{base}}/api/public-links
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### View file via public link (no auth)
+GET {{base}}/api/public-links/abc123
+Accept: {{json}}
+
+### Download via public link (no auth)
+GET {{base}}/api/public-links/abc123/download
+
+### Revoke link
+POST {{base}}/api/public-links/1/revoke
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Delete link
+DELETE {{base}}/api/public-links/1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

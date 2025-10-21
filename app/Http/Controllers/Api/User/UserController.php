@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
+use App\Http\Controllers\Api\BaseApiController;
 use Illuminate\Http\Request;
 
 class UserController extends BaseApiController

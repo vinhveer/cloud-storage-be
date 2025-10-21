@@ -1,0 +1,31 @@
+### Trash HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### List deleted files
+GET {{base}}/api/trash/files
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### List deleted folders
+GET {{base}}/api/trash/folders
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Restore item
+POST {{base}}/api/trash/1/restore
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Permanently delete item
+DELETE {{base}}/api/trash/1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Empty trash
+DELETE {{base}}/api/trash/empty
+Accept: {{json}}
+Authorization: Bearer {{token}}
+

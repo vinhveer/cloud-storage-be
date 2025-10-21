@@ -1,0 +1,21 @@
+### Storage HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=YOUR_TOKEN_HERE
+
+### Get storage usage
+GET {{base}}/api/storage/usage
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get storage breakdown
+GET {{base}}/api/storage/breakdown
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get storage limit
+GET {{base}}/api/storage/limit
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
