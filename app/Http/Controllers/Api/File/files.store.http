@@ -1,0 +1,105 @@
+@baseUrl = http://localhost:8000
+@token = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+
+### 1) Upload file - success (root folder) — expects 201 Created
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="hello.txt"
+Content-Type: text/plain
+
+Hello world
+--MyBoundary--
+
+### 2) Upload file - success (with folder_id) — expects 201 Created
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf"
+Content-Type: application/pdf
+
+< ./BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf
+--MyBoundary
+Content-Disposition: form-data; name="folder_id"
+
+7
+--MyBoundary
+Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
+
+Project Document.pdf
+--MyBoundary--
+
+### 3) Validation error - missing file (422)
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
+
+No file provided
+--MyBoundary--
+
+### 4) Validation error - file too large (422)       ---------------chưa test-------------
+# Try to upload a file larger than system_configs.max_upload_size
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="big.bin"
+Content-Type: application/octet-stream
+
+< ../samples/big.bin
+--MyBoundary--
+
+### 5) Domain error - folder not found or not owned (404)
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="hello.txt"
+Content-Type: text/plain
+
+Hello world
+--MyBoundary
+Content-Disposition: form-data; name="folder_id"
+
+999999
+--MyBoundary--
+
+### 6) Domain error - storage limit exceeded (409) ---------------chưa test-------------
+# Precondition: user's storage_limit or system default_storage_limit is set low, or storage_used close to limit.
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="large.pdf"
+Content-Type: application/pdf
+
+< ../samples/large.pdf
+--MyBoundary--
+
+### 7) Unauthenticated — 500
+POST {{baseUrl}}/api/files
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="hello.txt"
+Content-Type: text/plain
+
+Hello world without token
+--MyBoundary--

@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:8000
+@tokenA = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@tokenB = 2|bP6KPdXQNEICpAhStRblfvOxV7Wlo7QWwUuCECZe1e176d8a
+@nonExistentId = 999999
+@folderBId = 8
+@parentId = 9
+@childId = 10
+
+### Unauthenticated delete (expect 401)
+DELETE {{baseUrl}}/api/folders/{{nonExistentId}}
+Accept: application/json
+
+
+### Delete non-existent folder (expect 404)
+DELETE {{baseUrl}}/api/folders/{{nonExistentId}}
+Accept: application/json
+Authorization: Bearer {{tokenA}}
+
+
+### Create a folder as User B (expect 200) -> will set {{folderBId}}
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{tokenB}}
+
+{
+  "folder_name": "B's Folder for delete tests"
+}
+
+
+### Attempt delete of User B's folder using User A's token (expect 404 / FOLDER_NOT_FOUND)
+DELETE {{baseUrl}}/api/folders/{{folderBId}}
+Accept: application/json
+Authorization: Bearer {{tokenA}}
+
+
+### Create parent folder as User A (expect 200) -> sets {{parentId}}
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{tokenA}}
+
+{
+  "folder_name": "Parent for cascade delete"
+}
+
+
+### Create child folder under parent as User A (expect 200) -> sets {{childId}}
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{tokenA}}
+
+{
+  "folder_name": "Child folder",
+  "parent_folder_id": {{parentId}}
+}
+
+
+### Delete parent folder as owner (expect 200)
+DELETE {{baseUrl}}/api/folders/{{parentId}}
+Accept: application/json
+Authorization: Bearer {{tokenA}}
+
+
+### Verify child folder is marked deleted (expect 200 with is_deleted = true)
+GET {{baseUrl}}/api/folders/{{childId}}
+Accept: application/json
+Authorization: Bearer {{tokenA}}
+
+
+### Delete parent again (idempotent behavior) (expect 200)
+DELETE {{baseUrl}}/api/folders/{{parentId}}
+Accept: application/json
+Authorization: Bearer {{tokenA}}
+
+
+### Cleanup: attempt to delete folderB as its owner (expect 200) — optional
+DELETE {{baseUrl}}/api/folders/{{folderBId}}
+Accept: application/json
+Authorization: Bearer {{tokenB}}

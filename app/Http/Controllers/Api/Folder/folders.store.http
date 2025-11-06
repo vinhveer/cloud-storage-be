@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = 8|7bAj4ptroGcquSar5gBuXrPRArW7QzriXtznYcAif2c08146
-@parentId = 7
+@token = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@parentId = 
 
 ### Create folder at root (200)
 POST {{baseUrl}}/api/folders

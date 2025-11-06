@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseApiController;
 use App\Support\Traits\WithDevTrace;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\ListFoldersRequest;
+use App\Http\Requests\UpdateFolderRequest;
 use App\Services\FolderService;
 use Illuminate\Support\Facades\Auth;
 
@@ -55,7 +56,26 @@ class FolderController extends BaseApiController
 
     public function show(int $id)
     {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
+        $user = Auth::user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        try {
+            $folder = $this->folderService->getByIdForUser($user, $id);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            return $this->fail($e->getMessage(), 404, 'FOLDER_NOT_FOUND');
+        }
+
+        return $this->ok([
+            'folder_id' => $folder->id,
+            'folder_name' => $folder->folder_name,
+            'fol_folder_id' => $folder->fol_folder_id,
+            'user_id' => $folder->user_id,
+            'created_at' => $folder->created_at?->toISOString(),
+            'is_deleted' => (bool) $folder->is_deleted,
+            'deleted_at' => $folder->deleted_at?->toISOString(),
+        ]);
     }
 
     public function contents(int $id)
@@ -92,14 +112,47 @@ class FolderController extends BaseApiController
         ]);
     }
 
-    public function update(int $id)
+    public function update(UpdateFolderRequest $request, int $id)
     {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
+        $user = Auth::user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $folderName = (string) ($data['folder_name'] ?? '');
+
+        try {
+            $folder = $this->folderService->renameFolder($user, $id, $folderName);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            return $this->fail($e->getMessage(), 404, 'FOLDER_NOT_FOUND');
+        }
+
+        return $this->ok([
+            'message' => 'Folder renamed successfully.',
+            'folder' => [
+                'folder_id' => $folder->id,
+                'folder_name' => $folder->folder_name,
+            ],
+        ]);
     }
 
     public function destroy(int $id)
     {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
+        $user = Auth::user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        try {
+            $this->folderService->softDeleteFolder($user, $id);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            return $this->fail($e->getMessage(), 404, 'FOLDER_NOT_FOUND');
+        }
+
+        return $this->ok([
+            'message' => 'Folder moved to trash.',
+        ]);
     }
 
     public function restore(int $id)
