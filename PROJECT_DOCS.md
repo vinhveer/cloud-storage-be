@@ -2,6 +2,69 @@
 
 Tài liệu duy nhất này tổng hợp nội dung quan trọng từ toàn bộ các tài liệu trước đây, loại bỏ phần trùng lặp/không thiết yếu. Dành cho developer mới và cũ để nắm hệ thống nhanh, triển khai nhất quán.
 
+---
+## 0) Hướng dẫn dùng tài liệu với AI ("viết api cho …")
+
+Mục tiêu: Khi bạn dán nguyên tài liệu này vào và ra lệnh ví dụ: "viết api cho folders.store", AI sẽ đọc các quy ước bên dưới và tự động thực hiện theo thứ tự sau (tuỳ ngân sách token hiện có):
+
+- Công việc 1 (luôn ưu tiên): Viết API theo đúng quy ước dự án.
+- Công việc 2 (thực hiện nếu còn đủ token, nếu không thì để lần prompt tiếp): Tạo file test qua HTTP client với tên dạng resource.action.http, kiểm thử đầy đủ các tình huống (testcase) có thể xảy ra.
+
+Quy tắc điều phối theo token:
+
+- Nếu đủ token: làm cả 2 công việc trong một lần trả lời.
+- Nếu không đủ token: chỉ làm Công việc 1, đồng thời xuất TODO rõ ràng cho Công việc 2 (liệt kê đầy đủ các testcase cần có); ở lần prompt tiếp theo sẽ hoàn tất Công việc 2 dựa trên TODO.
+
+Chuẩn đầu ra mong muốn
+
+- Công việc 1 – Viết API: mã nguồn hoàn chỉnh (route, FormRequest, Controller, Service, Repository nếu cần), dùng chuẩn Response/Exception của dự án, có ghi chú điểm mở rộng/edge cases.
+- Công việc 2 – File test .http: tạo file .http đúng vị trí và tên; chứa nhiều request nhóm theo các tình huống: thành công, lỗi xác thực (422), chưa đăng nhập (401), sai quyền (403), không tìm thấy (404), xung đột (409), kích thước/quy cách không hợp lệ (413/415 nếu áp dụng), và các edge cases nghiệp vụ cụ thể.
+
+Lưu ý vị trí/lược đồ file .http trong repo này:
+
+- Đặt cạnh feature tương ứng, dưới: `app/Http/Controllers/Api/<Feature>/`
+- Quy ước tên: `resource.action.http` (ví dụ: `folders.store.http`, `files.update.http`). Có thể kèm file tổng hợp dạng `<Feature>.api.http` để gom nhiều request của cùng feature.
+- Sử dụng cú pháp REST Client (.http) với biến môi trường cục bộ (ví dụ `@baseUrl`, `@token`).
+
+Ví dụ skeleton file .http (rút gọn):
+
+```http
+@baseUrl = http://localhost:8000
+@token = {{token}}
+
+### 1) Happy path — 201 Created
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "folder_name": "Reports",
+    "fol_folder_id": null
+}
+
+### 2) Validation fail — 422
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "folder_name": "",
+    "fol_folder_id": 999999
+}
+
+### 3) Unauthenticated — 401
+POST {{baseUrl}}/api/folders
+Accept: application/json
+Content-Type: application/json
+
+{
+    "folder_name": "Private",
+    "fol_folder_id": null
+}
+```
+
 ## Mục lục
 
 1. Giới thiệu ngắn gọn
@@ -14,37 +77,11 @@ Tài liệu duy nhất này tổng hợp nội dung quan trọng từ toàn bộ
 8. Kiểm thử nhanh (ví dụ tạo Folder)
 
 ---
-
-## Root README (d:\Study\MNM\cloud-storage-be\README.md)
-
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
--   Simple, fast routing engine.
--   Powerful dependency injection container.
--   Multiple back-ends for session and cache storage.
--   Expressive, intuitive database ORM.
--   Database agnostic schema migrations.
--   Robust background job processing.
--   Real-time event broadcasting.
-
----
-
 ## 1) Giới thiệu ngắn gọn
 
 Backend API quản lý lưu trữ đám mây (files/folders), chia sẻ nội bộ và public link, versioning, trash, tìm kiếm, thống kê cá nhân và quản trị hệ thống.
 
--   Ngôn ngữ/Framework: PHP 8.x, Laravel 11.x
+-   Ngôn ngữ/Framework: PHP 8.2+, Laravel 12.x
 -   Auth: Laravel Sanctum (Personal Access Token cho API; có thể mở rộng SPA cookies)
 
 ---
@@ -82,9 +119,9 @@ Luồng Request → Response
 Quy ước Controller
 
 -   Đặt dưới `App\Http\Controllers\Api\<Feature>`; kế thừa `BaseApiController`.
--   Mỗi feature có folder riêng kèm tài liệu và ví dụ HTTP:
-    -   `<feature>.docs.md` — hướng dẫn nhanh, response mẫu, lỗi phổ biến.
-    -   `<feature>.api.http` — request mẫu để kiểm thử nhanh.
+-   Mỗi feature có folder riêng kèm ví dụ HTTP đặt cạnh Controller:
+    -   `<Feature>.api.http` — tổng hợp request mẫu của feature để kiểm thử nhanh.
+    -   `resource.action.http` — từng hành vi cụ thể (ví dụ: `folders.store.http`, `files.update.http`).
 -   Không chứa nghiệp vụ; chỉ gọi Service và trả `ok($data)`, `created($data)`, `noContent()`.
 
 Quy ước Service
@@ -177,10 +214,7 @@ Gợi ý mapping lỗi miền (domain): 400/404/409 tuỳ ngữ cảnh. Ném `Do
 
 ## 4) Xác thực (Laravel Sanctum)
 
-Hai chế độ phổ biến
-
--   Token-based (Personal Access Token – phù hợp mobile/server-to-server)
--   SPA Cookie-based (frontend cùng domain, cần CSRF cookie)
+Dự án đang dùngToken-based (Personal Access Token – phù hợp mobile/server-to-server)
 
 Yêu cầu tối thiểu
 
@@ -203,50 +237,6 @@ Endpoints đã triển khai (Auth Controller: `App\Http\Controllers\Api\Auth\Aut
     -   Thu hồi token hiện tại.
 -   `POST /api/auth/logout-all` — yêu cầu `auth:sanctum`.
     -   Thu hồi tất cả token của người dùng.
-
-Ví dụ cURL nhanh (điều chỉnh cho PowerShell nếu cần):
-
-```bash
-BASE=http://localhost:8000
-
-# Register
-curl -sS -X POST "$BASE/api/auth/register" \
-    -H "Accept: application/json" \
-    -H "Content-Type: application/json" \
-    -d '{
-        "name": "User",
-        "email": "user@example.com",
-        "password": "secret",
-        "password_confirmation": "secret",
-        "device_name": "api"
-    }'
-
-# Login
-curl -sS -X POST "$BASE/api/auth/login" \
-    -H "Accept: application/json" \
-    -H "Content-Type: application/json" \
-    -d '{
-        "email": "user@example.com",
-        "password": "secret",
-        "device_name": "api"
-    }'
-
-# Me (yêu cầu token)
-TOKEN="<PAT>"
-curl -sS -X GET "$BASE/api/auth/me" \
-    -H "Accept: application/json" \
-    -H "Authorization: Bearer $TOKEN"
-
-# Logout current token
-curl -sS -X POST "$BASE/api/auth/logout" \
-    -H "Accept: application/json" \
-    -H "Authorization: Bearer $TOKEN"
-
-# Logout all tokens
-curl -sS -X POST "$BASE/api/auth/logout-all" \
-    -H "Accept: application/json" \
-    -H "Authorization: Bearer $TOKEN"
-```
 
 ---
 
@@ -315,8 +305,17 @@ Lưu ý: Các endpoint auth nằm dưới group auth:sanctum; admin thêm can:ad
 
 Tạo file test .http ngay sau khi xong API
 
--   Sau khi viết xong 1 API, hãy tạo 1 file .http trong thư mục docs/ để test nhanh.
--   Quy ước tên file: <resource>.<action>.http, ví dụ: folders.store.http (tạo), folders.index.http (liệt kê).
+-   Sau khi viết xong 1 API, hãy tạo 1 file .http đặt cạnh feature: `app/Http/Controllers/Api/<Feature>/` để test nhanh bằng REST Client.
+-   Quy ước tên file: `resource.action.http`, ví dụ: `folders.store.http` (tạo), `folders.index.http` (liệt kê). Có thể bổ sung file tổng hợp `<Feature>.api.http` nếu cần gom nhóm.
+-   File phải bao phủ đầy đủ testcase chính:
+    -   Happy path (200/201/204 tuỳ hành vi)
+    -   422 Validation fail (thiếu/sai kiểu/sai ràng buộc)
+    -   401 Unauthenticated (thiếu token)
+    -   403 Forbidden (sai quyền/chủ sở hữu)
+    -   404 Not found (id không tồn tại/không thuộc sở hữu)
+    -   409 Conflict (trùng tên, trạng thái không hợp lệ, đang bị khoá, …)
+    -   413 Payload too large / 415 Unsupported media type (nếu áp dụng upload)
+    -   Edge cases nghiệp vụ đặc thù (ví dụ: move vào chính con cháu của nó → bị chặn)
 -   Mẫu khởi tạo nhanh:
 
 ```http
@@ -329,10 +328,10 @@ Accept: application/json
 Authorization: Bearer {{token}}
 ```
 
-Ví dụ hiện có:
+Ví dụ hiện có trong repo:
 
--   docs/folders.store.http – test tạo thư mục
--   docs/folders.index.http – test liệt kê thư mục con
+-   `app/Http/Controllers/Api/Folder/folders.store.http` – test tạo thư mục
+-   `app/Http/Controllers/Api/Folder/folders.index.http` – test liệt kê thư mục con
 
 Auth & Admin
 
@@ -547,33 +546,3 @@ Ví dụ truy vấn:
 ```php
 SystemConfig::where('config_key', 'default_storage_limit')->value('config_value');
 ```
-
----
-
-## 8) Kiểm thử nhanh (ví dụ tạo Folder)
-
-Giả sử đã có PAT `TOKEN` từ /api/login.
-
-POST /api/folders
-Body JSON
-
--   folder_name: string, required, max 255
--   parent_folder_id: integer|null
-
-curl mẫu (PowerShell chỉnh token/host cho phù hợp):
-
-```bash
-BASE=http://localhost:8000
-TOKEN="<PAT>"
-
-curl -sS -X POST "$BASE/api/folders" \
-    -H "Accept: application/json" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $TOKEN" \
-    -d '{
-        "folder_name": "Tai lieu",
-        "parent_folder_id": null
-    }'
-```
-
-Kết quả thành công: 200 + payload thư mục mới. Lỗi phổ biến: 422 (validation), lỗi miền (VD: parent không thuộc user → 400/404 tuỳ quy ước).
