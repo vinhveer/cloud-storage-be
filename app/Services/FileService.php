@@ -48,11 +48,18 @@ class FileService
 			}
 
 			// Check user storage quota – fall back to system default_storage_limit if user-specific limit not set/0
-			$systemDefaultLimit = (int) (SystemConfig::where('config_key', 'default_storage_limit')->value('config_value') ?? 0);
+			// Read default storage limit (in bytes); user->storage_limit takes precedence if set
+			$systemDefaultLimit = (int) SystemConfig::getBytes('default_storage_limit', 0);
 			$limit = (int) ($user->storage_limit ?: $systemDefaultLimit);
 			$used = (int) ($user->storage_used ?? 0);
 			if ($limit > 0 && ($used + $size) > $limit) {
 				throw new \App\Exceptions\DomainValidationException('Storage limit exceeded');
+			}
+
+			// Enforce per-file max upload size from system config (defensive server-side check)
+			$maxUploadBytes = (int) SystemConfig::getBytes('max_upload_size', 0);
+			if ($maxUploadBytes > 0 && $size > $maxUploadBytes) {
+				throw new \App\Exceptions\DomainValidationException('File size exceeds max_upload_size');
 			}
 
 			// Create File record

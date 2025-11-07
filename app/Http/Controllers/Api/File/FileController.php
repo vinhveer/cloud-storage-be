@@ -28,8 +28,12 @@ class FileController extends BaseApiController
             );
         } catch (\App\Exceptions\DomainValidationException $e) {
             $message = $e->getMessage();
-            if (str_contains(strtolower($message), 'storage limit')) {
+            $lower = strtolower($message);
+            if (str_contains($lower, 'storage limit')) {
                 return $this->fail($message, 409, 'STORAGE_LIMIT_EXCEEDED');
+            }
+            if (str_contains($lower, 'max_upload_size') || str_contains($lower, 'file size')) {
+                return $this->fail($message, 422, 'FILE_TOO_LARGE');
             }
             return $this->fail($message, 404, 'FOLDER_NOT_FOUND');
         }

@@ -9,9 +9,10 @@ class UploadFileRequest extends BaseFormRequest
 {
     public function rules(): array
     {
-        // max_upload_size is stored in bytes in system_configs, Laravel's 'max' for files expects kilobytes
-        $maxBytes = (int) (SystemConfig::where('config_key', 'max_upload_size')->value('config_value') ?? 0);
-        $maxKilobytes = $maxBytes > 0 ? (int) ceil($maxBytes / 1024) : null;
+    // Get max_upload_size in bytes (supports numeric bytes or human-friendly values)
+    $maxBytes = (int) SystemConfig::getBytes('max_upload_size', 0);
+    // Laravel 'max' for files expects kilobytes
+    $maxKilobytes = $maxBytes > 0 ? (int) ceil($maxBytes / 1024) : null;
 
         $fileRules = ['required', 'file'];
         if ($maxKilobytes !== null) {

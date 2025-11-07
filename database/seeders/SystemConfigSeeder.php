@@ -11,7 +11,7 @@ class SystemConfigSeeder extends Seeder
     {
         $configs = [
             ['config_key' => 'default_storage_limit', 'config_value' => '10737418240'], // 10GB
-            ['config_key' => 'max_upload_size', 'config_value' => '524288000'], // 500MB
+            ['config_key' => 'max_upload_size', 'config_value' => '52428800'], // 50MB
         ];
 
         foreach ($configs as $config) {
