@@ -103,19 +103,20 @@ class FileController extends BaseApiController
     public function show(int $id)
     {
         $user = request()->user();
-        if (! $user) {
+        $token = request()->query('token') ?? request()->input('token');
+        if (! $user && $token === null) {
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
         try {
-            $file = $this->files->getFileForUser($user, $id);
+            $file = $this->files->checkAccessForFile($user, $id, 'view', $token);
         } catch (\App\Exceptions\DomainValidationException $e) {
             $message = $e->getMessage();
             $lower = strtolower($message);
             if (str_contains($lower, 'not found')) {
                 return $this->fail($message, 404, 'FILE_NOT_FOUND');
             }
-            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+            if (str_contains($lower, 'not accessible') || str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
                 return $this->fail($message, 403, 'FORBIDDEN');
             }
             return $this->fail($message, 400, 'BAD_REQUEST');
@@ -140,19 +141,28 @@ class FileController extends BaseApiController
     public function download(int $id)
     {
         $user = request()->user();
-        if (! $user) {
+        $token = request()->query('token') ?? request()->input('token');
+        if (! $user && $token === null) {
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
         try {
-            $info = $this->files->prepareDownloadForUser($user, $id);
+            // Validate access via owner/share/public link
+            $this->files->checkAccessForFile($user, $id, 'download', $token);
+
+            // Prepare download info based on context
+            if ($user) {
+                $info = $this->files->prepareDownloadForUser($user, $id);
+            } else {
+                $info = $this->files->prepareDownloadForPublic($id);
+            }
         } catch (\App\Exceptions\DomainValidationException $e) {
             $message = $e->getMessage();
             $lower = strtolower($message);
             if (str_contains($lower, 'not found')) {
                 return $this->fail($message, 404, 'FILE_NOT_FOUND');
             }
-            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+            if (str_contains($lower, 'not accessible') || str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
                 return $this->fail($message, 403, 'FORBIDDEN');
             }
             if (str_contains($lower, 'content not found') || str_contains($lower, 'version not found')) {
@@ -180,6 +190,18 @@ class FileController extends BaseApiController
         $data = $request->validated();
         $displayName = array_key_exists('display_name', $data) ? $data['display_name'] : null;
         $folderId = array_key_exists('folder_id', $data) && $data['folder_id'] !== null ? (int) $data['folder_id'] : null;
+
+        // authorize: require edit permission on the file
+        try {
+            $this->files->checkAccessForFile($user, $id, 'edit');
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            return $this->fail($message, 403, 'FORBIDDEN');
+        }
 
         try {
             $file = $this->files->update($user, $id, $displayName, $folderId);
@@ -219,6 +241,18 @@ class FileController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
+        // authorize: require edit permission
+        try {
+            $this->files->checkAccessForFile($user, $id, 'edit');
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            return $this->fail($message, 403, 'FORBIDDEN');
+        }
+
         try {
             $this->files->moveToTrash($user, $id);
         } catch (\App\Exceptions\DomainValidationException $e) {
@@ -252,6 +286,24 @@ class FileController extends BaseApiController
         $destinationFolderId = (int) $data['destination_folder_id'];
         // allow flag via query or body; use Request::boolean which checks input and query string
         $onlyLatest = $request->boolean('only_latest');
+        // optional public-link token
+        $token = $request->query('token') ?? $request->input('token');
+
+        // authorize: require download permission on source (allow public-token check when provided)
+        try {
+            if ($token !== null) {
+                $this->files->checkAccessForFile(null, $id, 'download', $token);
+            } else {
+                $this->files->checkAccessForFile($user, $id, 'download');
+            }
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            return $this->fail($message, 403, 'FORBIDDEN');
+        }
 
         try {
             $newFile = $this->files->copy($user, $id, $destinationFolderId, $onlyLatest);
@@ -299,6 +351,18 @@ class FileController extends BaseApiController
         $data = $request->validated();
         $destinationFolderId = (int) $data['destination_folder_id'];
 
+        // authorize: require edit permission on the file
+        try {
+            $this->files->checkAccessForFile($user, $id, 'edit');
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            return $this->fail($message, 403, 'FORBIDDEN');
+        }
+
         try {
             $file = $this->files->move($user, $id, $destinationFolderId);
         } catch (\App\Exceptions\DomainValidationException $e) {
@@ -325,7 +389,22 @@ class FileController extends BaseApiController
             ],
         ]);
     }
-    public function recent() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
+    public function recent()
+    {
+        $user = request()->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $limit = (int) max(1, min(100, request()->query('limit', 20)));
+        $includeShared = request()->boolean('include_shared', true);
+
+        $items = $this->files->recent($user, $limit, $includeShared);
+
+        return $this->ok([
+            'data' => $items->all(),
+        ]);
+    }
     public function sharedWithMe() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
     public function sharedByMe() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
 }

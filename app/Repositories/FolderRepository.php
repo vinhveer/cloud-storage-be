@@ -31,6 +31,22 @@ class FolderRepository
         ];
     }
 
+    /**
+     * Get all non-deleted folders for a user.
+     * Used to build the folder tree client-side.
+     *
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllNonDeletedByUser(int $userId)
+    {
+        return Folder::query()
+            ->where('user_id', $userId)
+            ->where('is_deleted', false)
+            ->orderBy('id')
+            ->get(['id', 'folder_name', 'fol_folder_id']);
+    }
+
     public function create(User $user, ?Folder $parent, string $folderName): Folder
     {
         return Folder::create([

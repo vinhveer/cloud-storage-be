@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Models\FileVersion;
 use App\Models\SystemConfig;
+use App\Models\PublicLink;
+use Carbon\Carbon;
 
 class FolderService
 {
@@ -55,14 +57,200 @@ class FolderService
      *
      * @throws DomainValidationException when not found or not owned by user
      */
-    public function getByIdForUser(User $user, int $folderId)
+    /**
+     * Get a folder by id that belongs to the given user or is shared to the user with sufficient permission.
+     *
+     * @param User $user
+     * @param int $folderId
+     * @param string|null $requiredPermission 'view'|'download'|'edit' (defaults to 'view')
+     * @throws DomainValidationException when not found or not owned/granted
+     */
+    public function getByIdForUser(User $user, int $folderId, ?string $requiredPermission = 'view')
     {
+        // Quick owner lookup
         $folder = $this->folders->findByIdAndUser($folderId, $user->id);
-        if (! $folder) {
-            throw new DomainValidationException('Folder not found or not owned by user');
+        if ($folder) {
+            return $folder;
         }
 
+        // Load the folder model; if it doesn't exist, fail fast
+        $folderModel = Folder::find($folderId);
+        if (! $folderModel) {
+            throw new DomainValidationException('Folder not found');
+        }
+
+        // Traverse up the ancestor chain and check for a share that grants the required permission
+        $cursor = $folderModel;
+        while ($cursor !== null) {
+            $found = \DB::table('shares')
+                ->join('receives_shares', 'shares.id', '=', 'receives_shares.share_id')
+                ->where('receives_shares.user_id', $user->id)
+                ->where('shares.shareable_type', 'folder')
+                ->where('shares.folder_id', $cursor->id)
+                ->whereIn('receives_shares.permission', $this->allowedPermissionsFor($requiredPermission))
+                ->exists();
+
+            if ($found) {
+                return $folderModel;
+            }
+
+            $cursor = $cursor->parent()->first();
+        }
+
+        throw new DomainValidationException('Folder not found or not owned by user');
+    }
+
+    /**
+     * Public variant to get a folder by id without ownership checks.
+     * Intended to be used by public-link flows which authenticate via token elsewhere.
+     *
+     * @param int $folderId
+     * @return FolderModel
+     * @throws DomainValidationException
+     */
+    public function getByIdPublic(int $folderId)
+    {
+        $folder = Folder::find($folderId);
+        if (! $folder) {
+            throw new DomainValidationException('Folder not found');
+        }
         return $folder;
+    }
+
+    /**
+     * Helper to map required permission to accepted granted permissions.
+     * Kept in FolderService to avoid cross-service dependency.
+     */
+    private function allowedPermissionsFor(string $required): array
+    {
+        return match ($required) {
+            'edit' => ['edit'],
+            'download' => ['download', 'edit'],
+            default => ['view', 'download', 'edit'],
+        };
+    }
+
+    /**
+     * List folders and files contained in a folder for a given user.
+     * Verifies the user has access to the folder (ownership or shared with sufficient permission).
+     *
+     * @param User $user
+     * @param int $folderId
+     * @return array{folders:\Illuminate\Support\Collection, files:\Illuminate\Support\Collection}
+     * @throws DomainValidationException
+     */
+    public function listContents(User $user, int $folderId): array
+    {
+        // will throw DomainValidationException if not accessible
+        $folder = $this->getByIdForUser($user, $folderId, 'view');
+
+        $folders = $folder->children()
+            ->where('is_deleted', false)
+            ->orderByDesc('id')
+            ->get(['id', 'folder_name', 'created_at']);
+
+        $files = $folder->files()
+            ->where('is_deleted', false)
+            ->orderByDesc('id')
+            ->get(['id', 'display_name', 'file_size', 'mime_type', 'file_extension', 'last_opened_at']);
+
+        return [
+            'folders' => $folders,
+            'files' => $files,
+        ];
+    }
+
+    /**
+     * Public variant of listContents which does not require an authenticated user.
+     * Intended for public-link flows which validate access via token elsewhere.
+     *
+     * @param int $folderId
+     * @return array{folders:\Illuminate\Support\Collection, files:\Illuminate\Support\Collection}
+     * @throws DomainValidationException
+     */
+    public function listContentsPublic(int $folderId): array
+    {
+        $folder = $this->getByIdPublic($folderId);
+
+        $folders = $folder->children()
+            ->where('is_deleted', false)
+            ->orderByDesc('id')
+            ->get(['id', 'folder_name', 'created_at']);
+
+        $files = $folder->files()
+            ->where('is_deleted', false)
+            ->orderByDesc('id')
+            ->get(['id', 'display_name', 'file_size', 'mime_type', 'file_extension', 'last_opened_at']);
+
+        return [
+            'folders' => $folders,
+            'files' => $files,
+        ];
+    }
+
+    /**
+     * Check access for a folder by owner, share (ancestor chain) or public link token.
+     * Returns the Folder model when access is granted or throws DomainValidationException.
+     *
+     * @param User|null $user
+     * @param int $folderId
+     * @param string|null $requiredPermission
+     * @param string|null $publicToken
+     * @return FolderModel
+     * @throws DomainValidationException
+     */
+    public function checkAccessForFolder(?User $user, int $folderId, ?string $requiredPermission = 'view', ?string $publicToken = null)
+    {
+        $folder = Folder::find($folderId);
+        if (! $folder) {
+            throw new DomainValidationException('Folder not found');
+        }
+
+        // Owner
+        if ($user && $folder->user_id === $user->id) {
+            return $folder;
+        }
+
+        // Check shares up the ancestor chain for authenticated user
+        if ($user) {
+            $cursor = $folder;
+            while ($cursor !== null) {
+                $found = \DB::table('shares')
+                    ->join('receives_shares', 'shares.id', '=', 'receives_shares.share_id')
+                    ->where('receives_shares.user_id', $user->id)
+                    ->where('shares.shareable_type', 'folder')
+                    ->where('shares.folder_id', $cursor->id)
+                    ->whereIn('receives_shares.permission', $this->allowedPermissionsFor($requiredPermission))
+                    ->exists();
+
+                if ($found) {
+                    return $folder;
+                }
+
+                $cursor = $cursor->parent()->first();
+            }
+        }
+
+        // Public token based access: check public link on this folder or any ancestor
+        if ($publicToken !== null) {
+            $now = Carbon::now();
+            $plQuery = PublicLink::where('token', $publicToken)
+                ->whereNull('revoked_at')
+                ->where(function ($q) use ($now) {
+                    $q->whereNull('expired_at')->orWhere('expired_at', '>', $now);
+                });
+
+            $cursor = $folder;
+            while ($cursor !== null) {
+                $pl = (clone $plQuery)->where('folder_id', $cursor->id)->first();
+                if ($pl && in_array($pl->permission, $this->allowedPermissionsFor($requiredPermission), true)) {
+                    return $folder;
+                }
+                $cursor = $cursor->parent()->first();
+            }
+        }
+
+        throw new DomainValidationException('Folder not accessible');
     }
 
     /**
@@ -178,9 +366,12 @@ class FolderService
      */
     public function copyFolder(User $user, int $sourceFolderId, ?int $targetFolderId = null): Folder
     {
-        $source = $this->folders->findByIdAndUser($sourceFolderId, $user->id);
-        if (! $source) {
-            throw new DomainValidationException('Source folder not found or not owned by user');
+        // Allow copying when user owns the source or when the source is shared to the user
+        try {
+            // require download permission to perform a copy (copying implies downloading content)
+            $source = $this->checkAccessForFolder($user, $sourceFolderId, 'download');
+        } catch (DomainValidationException $e) {
+            throw new DomainValidationException('Source folder not found or not accessible');
         }
 
         $targetParent = null;
@@ -442,6 +633,95 @@ class FolderService
 
             throw new DomainValidationException($e->getMessage());
         }
+    }
+
+    /**
+     * Build and return the folder tree for a given user as nested arrays.
+     *
+     * @param User $user
+     * @return array{folders: array}
+     */
+    public function tree(User $user): array
+    {
+        // 1) collect owned folders
+        $owned = $this->folders->getAllNonDeletedByUser($user->id);
+
+        // map id => model placeholder
+        $collected = [];
+        foreach ($owned as $f) {
+            $collected[$f->id] = $f;
+        }
+
+        // 2) collect folders reachable via shares granted to this user (view permission)
+        $perms = $this->allowedPermissionsFor('view');
+        $sharedRootIds = DB::table('shares')
+            ->join('receives_shares', 'shares.id', '=', 'receives_shares.share_id')
+            ->where('receives_shares.user_id', $user->id)
+            ->where('shares.shareable_type', 'folder')
+            ->whereIn('receives_shares.permission', $perms)
+            ->pluck('shares.folder_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        foreach ($sharedRootIds as $rootId) {
+            $root = Folder::where('id', $rootId)->where('is_deleted', false)->first();
+            if (! $root) {
+                continue;
+            }
+            // traverse subtree of this shared root and add to collected
+            $stack = [$root];
+            while (! empty($stack)) {
+                $node = array_pop($stack);
+                if (! isset($collected[$node->id])) {
+                    $collected[$node->id] = $node;
+                }
+                $children = $node->children()->where('is_deleted', false)->get();
+                foreach ($children as $c) {
+                    if (! isset($collected[$c->id])) {
+                        $stack[] = $c;
+                    }
+                }
+            }
+        }
+
+        // 3) build nodes map (folder_id => node array with children)
+        $map = [];
+        foreach ($collected as $f) {
+            $map[$f->id] = [
+                'folder_id' => $f->id,
+                'folder_name' => $f->folder_name,
+                'children' => [],
+                'fol_folder_id' => $f->fol_folder_id,
+            ];
+        }
+
+        // 4) attach children to parents when available; missing parents => treat as root
+        $roots = [];
+        foreach ($map as $id => $node) {
+            $parentId = $node['fol_folder_id'];
+            if ($parentId === null || ! isset($map[$parentId])) {
+                $roots[] = &$map[$id];
+            } else {
+                $map[$parentId]['children'][] = &$map[$id];
+            }
+        }
+
+        // 5) cleanup internal keys
+        $clean = function (&$nodes) use (&$clean) {
+            foreach ($nodes as &$n) {
+                if (array_key_exists('fol_folder_id', $n)) {
+                    unset($n['fol_folder_id']);
+                }
+                if (! empty($n['children'])) {
+                    $clean($n['children']);
+                }
+            }
+        };
+
+        $clean($roots);
+
+        return ['folders' => $roots];
     }
 }
 
