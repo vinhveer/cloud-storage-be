@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:8000
+@adminToken = 3|DwD4PQTvHzZE6xxPoa93Ata5GwW73vGF8abE9wWs07af7e2a
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — 200 OK (admin)
+DELETE {{baseUrl}}/api/files/22/versions/36
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+
+### 2) Unauthenticated — 401
+DELETE {{baseUrl}}/api/files/22/versions/10
+Accept: application/json
+
+
+### 3) Forbidden (non-admin) — 403
+DELETE {{baseUrl}}/api/files/22/versions/36
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 4) File not found — 404
+DELETE {{baseUrl}}/api/files/999999/versions/1
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+
+### 5) Version not found — 404
+DELETE {{baseUrl}}/api/files/22/versions/999999
+Accept: application/json
+Authorization: Bearer {{adminToken}}
+
+
+### 6) Content missing on disk — 404 FILE_CONTENT_NOT_FOUND (optional)
+# If a version record exists but the underlying file content is missing on disk,
+# the API may return 404 with a FILE_CONTENT_NOT_FOUND code depending on implementation.
+DELETE {{baseUrl}}/api/files/22/versions/11
+Accept: application/json
+Authorization: Bearer {{adminToken}}

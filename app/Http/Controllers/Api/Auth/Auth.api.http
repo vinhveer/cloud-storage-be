@@ -23,8 +23,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "modesto95@gmail.com",
-  "password": "password",
+  "email": "admin@gmail.com",
+  "password": "12345678",
   "device_name": "api"
 }
 
