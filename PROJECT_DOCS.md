@@ -3,28 +3,29 @@
 Tài liệu duy nhất này tổng hợp nội dung quan trọng từ toàn bộ các tài liệu trước đây, loại bỏ phần trùng lặp/không thiết yếu. Dành cho developer mới và cũ để nắm hệ thống nhanh, triển khai nhất quán.
 
 ---
+
 ## 0) Hướng dẫn dùng tài liệu với AI ("viết api cho …")
 
 Mục tiêu: Khi bạn dán nguyên tài liệu này vào và ra lệnh ví dụ: "viết api cho folders.store", AI sẽ đọc các quy ước bên dưới và tự động thực hiện theo thứ tự sau (tuỳ ngân sách token hiện có):
 
-- Công việc 1 (luôn ưu tiên): Viết API theo đúng quy ước dự án.
-- Công việc 2 (thực hiện nếu còn đủ token, nếu không thì để lần prompt tiếp): Tạo file test qua HTTP client với tên dạng resource.action.http, kiểm thử đầy đủ các tình huống (testcase) có thể xảy ra.
+-   Công việc 1 (luôn ưu tiên): Viết API theo đúng quy ước dự án.
+-   Công việc 2 (thực hiện nếu còn đủ token, nếu không thì để lần prompt tiếp): Tạo file test qua HTTP client với tên dạng resource.action.http, kiểm thử đầy đủ các tình huống (testcase) có thể xảy ra.
 
 Quy tắc điều phối theo token:
 
-- Nếu đủ token: làm cả 2 công việc trong một lần trả lời.
-- Nếu không đủ token: chỉ làm Công việc 1, đồng thời xuất TODO rõ ràng cho Công việc 2 (liệt kê đầy đủ các testcase cần có); ở lần prompt tiếp theo sẽ hoàn tất Công việc 2 dựa trên TODO.
+-   Nếu đủ token: làm cả 2 công việc trong một lần trả lời.
+-   Nếu không đủ token: chỉ làm Công việc 1, đồng thời xuất TODO rõ ràng cho Công việc 2 (liệt kê đầy đủ các testcase cần có); ở lần prompt tiếp theo sẽ hoàn tất Công việc 2 dựa trên TODO.
 
 Chuẩn đầu ra mong muốn
 
-- Công việc 1 – Viết API: mã nguồn hoàn chỉnh (route, FormRequest, Controller, Service, Repository nếu cần), dùng chuẩn Response/Exception của dự án, có ghi chú điểm mở rộng/edge cases.
-- Công việc 2 – File test .http: tạo file .http đúng vị trí và tên; chứa nhiều request nhóm theo các tình huống: thành công, lỗi xác thực (422), chưa đăng nhập (401), sai quyền (403), không tìm thấy (404), xung đột (409), kích thước/quy cách không hợp lệ (413/415 nếu áp dụng), và các edge cases nghiệp vụ cụ thể.
+-   Công việc 1 – Viết API: mã nguồn hoàn chỉnh (route, FormRequest, Controller, Service, Repository nếu cần), dùng chuẩn Response/Exception của dự án, có ghi chú điểm mở rộng/edge cases.
+-   Công việc 2 – File test .http: tạo file .http đúng vị trí và tên; chứa nhiều request nhóm theo các tình huống: thành công, lỗi xác thực (422), chưa đăng nhập (401), sai quyền (403), không tìm thấy (404), xung đột (409), kích thước/quy cách không hợp lệ (413/415 nếu áp dụng), và các edge cases nghiệp vụ cụ thể.
 
 Lưu ý vị trí/lược đồ file .http trong repo này:
 
-- Đặt cạnh feature tương ứng, dưới: `app/Http/Controllers/Api/<Feature>/`
-- Quy ước tên: `resource.action.http` (ví dụ: `folders.store.http`, `files.update.http`). Có thể kèm file tổng hợp dạng `<Feature>.api.http` để gom nhiều request của cùng feature.
-- Sử dụng cú pháp REST Client (.http) với biến môi trường cục bộ (ví dụ `@baseUrl`, `@token`).
+-   Đặt cạnh feature tương ứng, dưới: `app/Http/Controllers/Api/<Feature>/`
+-   Quy ước tên: `resource.action.http` (ví dụ: `folders.store.http`, `files.update.http`). Có thể kèm file tổng hợp dạng `<Feature>.api.http` để gom nhiều request của cùng feature.
+-   Sử dụng cú pháp REST Client (.http) với biến môi trường cục bộ (ví dụ `@baseUrl`, `@token`).
 
 Ví dụ skeleton file .http (rút gọn):
 
@@ -77,6 +78,7 @@ Content-Type: application/json
 8. Kiểm thử nhanh (ví dụ tạo Folder)
 
 ---
+
 ## 1) Giới thiệu ngắn gọn
 
 Backend API quản lý lưu trữ đám mây (files/folders), chia sẻ nội bộ và public link, versioning, trash, tìm kiếm, thống kê cá nhân và quản trị hệ thống.
@@ -256,7 +258,8 @@ User Management (Admin)
 
 Files
 
--   Upload/list/show/download/update/delete/restore/force/copy/move
+-   Upload/list/show/download/update/delete/copy/move
+
 -   Recent, shared-with-me, shared-by-me
 
 File Versions
@@ -269,7 +272,7 @@ Trash
 
 Folders
 
--   Tạo/list/show/contents/update/delete/restore/force/copy/move; tree; breadcrumb
+-   Tạo/list/show/contents/update/delete/copy/move; tree; breadcrumb
 
 Sharing & Public Links
 
@@ -437,6 +440,13 @@ Ràng buộc/invariant gợi ý:
 -   `file_size >= 0`.
 -   `user_id` của `File` nên trùng với `folder.user_id` để đảm bảo sở hữu nhất quán.
 -   Quy ước rõ giữa `is_deleted` và `deleted_at`.
+
+Ghi chú invariant hệ thống (quan trọng):
+
+-   `File.file_size` được dùng để biểu diễn kích thước (bytes) của phiên bản hiện tại / mới nhất của tệp. Các API (list/show) và client-side nên hiểu `file_size` là kích thước của phiên bản đang được coi là "current".
+-   Mỗi `FileVersion` lưu `file_size` riêng cho từng phiên bản lịch sử.
+-   `users.storage_used` phải phản ánh tổng bytes thực tế đang lưu cho user (thường là tổng kích thước các phiên bản được lưu). Khi tạo/sao chép/xóa phiên bản, service phải cập nhật `storage_used` tương ứng.
+-   Khi thực hiện thao tác sao chép toàn bộ phiên bản (copy), hãy đảm bảo: tạo các `FileVersion` tương ứng, sao chép từng đối tượng vật lý trên disk và tăng `storage_used` bằng tổng bytes đã copy, nhưng `File.file_size` của file mới vẫn là kích thước của phiên bản mới nhất.
 
 Ví dụ truy vấn:
 

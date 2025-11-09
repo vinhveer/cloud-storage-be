@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:8000
+@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+
+### 1) Happy path — 200 OK
+GET {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 2) Unauthenticated — 401
+GET {{baseUrl}}/api/files/101
+Accept: application/json
+
+
+### 3) Not found — 404
+GET {{baseUrl}}/api/files/999999
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 4) Forbidden (other user's file) — 403
+# Use a token that belongs to a different user than the file owner
+GET {{baseUrl}}/api/files/18
+Accept: application/json
+Authorization: Bearer {{token}}

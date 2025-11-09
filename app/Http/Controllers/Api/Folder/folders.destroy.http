@@ -1,9 +1,9 @@
 @baseUrl = http://localhost:8000
-@tokenA = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@tokenA = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
 @tokenB = 2|bP6KPdXQNEICpAhStRblfvOxV7Wlo7QWwUuCECZe1e176d8a
 @nonExistentId = 999999
 @folderBId = 8
-@parentId = 9
+@parentId = 7
 @childId = 10
 
 ### Unauthenticated delete (expect 401)
@@ -63,13 +63,13 @@ Accept: application/json
 Authorization: Bearer {{tokenA}}
 
 
-### Verify child folder is marked deleted (expect 200 with is_deleted = true)
+### Verify child folder is marked deleted (expect 404)
 GET {{baseUrl}}/api/folders/{{childId}}
 Accept: application/json
 Authorization: Bearer {{tokenA}}
 
 
-### Delete parent again (idempotent behavior) (expect 200)
+### Delete parent again (idempotent behavior) (expect 404 / FOLDER_NOT_FOUND)
 DELETE {{baseUrl}}/api/folders/{{parentId}}
 Accept: application/json
 Authorization: Bearer {{tokenA}}

@@ -155,16 +155,6 @@ class FolderController extends BaseApiController
         ]);
     }
 
-    public function restore(int $id)
-    {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
-    }
-
-    public function forceDelete(int $id)
-    {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
-    }
-
     public function copy(int $id)
     {
         return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');

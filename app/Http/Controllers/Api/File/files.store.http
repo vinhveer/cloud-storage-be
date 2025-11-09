@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
 
 ### 1) Upload file - success (root folder) — expects 201 Created
 POST {{baseUrl}}/api/files
@@ -8,10 +8,10 @@ Accept: application/json
 Content-Type: multipart/form-data; boundary=MyBoundary
 
 --MyBoundary
-Content-Disposition: form-data; name="file"; filename="hello.txt"
-Content-Type: text/plain
+Content-Disposition: form-data; name="file"; filename="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf"
+Content-Type: application/pdf
 
-Hello world
+< ./BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf
 --MyBoundary--
 
 ### 2) Upload file - success (with folder_id) — expects 201 Created
@@ -28,7 +28,7 @@ Content-Type: application/pdf
 --MyBoundary
 Content-Disposition: form-data; name="folder_id"
 
-7
+8
 --MyBoundary
 Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
 
@@ -85,14 +85,24 @@ Authorization: Bearer {{token}}
 Accept: application/json
 Content-Type: multipart/form-data; boundary=MyBoundary
 
+
 --MyBoundary
-Content-Disposition: form-data; name="file"; filename="large.pdf"
+Content-Disposition: form-data; name="file"; filename="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf"
 Content-Type: application/pdf
 
-< ../samples/large.pdf
+< ./BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf
+--MyBoundary
+Content-Disposition: form-data; name="folder_id"
+
+7
+--MyBoundary
+Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
+
+Project Document.pdf
 --MyBoundary--
 
-### 7) Unauthenticated — 500
+
+### 7) Unauthenticated — 401
 POST {{baseUrl}}/api/files
 Accept: application/json
 Content-Type: multipart/form-data; boundary=MyBoundary

@@ -30,3 +30,7 @@ Authorization: Bearer {{token}}
 {
   "folder_name": "New name"
 }
+
+### Unauthenticated — 401
+PUT {{baseUrl}}/api/folders/{{folderId}}
+Accept: application/json

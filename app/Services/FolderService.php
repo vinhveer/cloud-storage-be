@@ -96,6 +96,7 @@ class FolderService
         });
     }
 
+
     /**
      * Recursively mark folder/files as deleted and perform Eloquent soft deletes.
      */

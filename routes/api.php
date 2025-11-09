@@ -33,8 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download']);
     Route::put('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'update']);
     Route::delete('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'destroy']);
-    Route::post('/files/{id}/restore', [\App\Http\Controllers\Api\File\FileController::class, 'restore']);
-    Route::delete('/files/{id}/force', [\App\Http\Controllers\Api\File\FileController::class, 'forceDelete']);
+    
     Route::post('/files/{id}/copy', [\App\Http\Controllers\Api\File\FileController::class, 'copy']);
     Route::post('/files/{id}/move', [\App\Http\Controllers\Api\File\FileController::class, 'move']);
 
@@ -62,8 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'show']);
     Route::put('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'update']);
     Route::delete('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'destroy']);
-    Route::post('/folders/{id}/restore', [\App\Http\Controllers\Api\Folder\FolderController::class, 'restore']);
-    Route::delete('/folders/{id}/force', [\App\Http\Controllers\Api\Folder\FolderController::class, 'forceDelete']);
+    
     Route::post('/folders/{id}/copy', [\App\Http\Controllers\Api\Folder\FolderController::class, 'copy']);
     Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\Folder\FolderController::class, 'move']);
 

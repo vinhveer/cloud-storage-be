@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api\File;
 
 use App\Http\Controllers\Api\BaseApiController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Files\UploadFileRequest;
 use App\Http\Requests\Files\ListFilesRequest;
+use App\Http\Requests\Files\UpdateFileRequest;
+use App\Http\Requests\Files\CopyFileRequest;
 use App\Services\FileService;
 
 class FileController extends BaseApiController
@@ -97,13 +100,195 @@ class FileController extends BaseApiController
             ],
         ]);
     }
-    public function show(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function download(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function update(Request $request, int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function destroy(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function restore(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function forceDelete(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
-    public function copy(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
+    public function show(int $id)
+    {
+        $user = request()->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        try {
+            $file = $this->files->getFileForUser($user, $id);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        // Prepare response payload per project convention
+        $payload = [
+            'file_id' => $file->id,
+            'display_name' => $file->display_name,
+            'file_size' => (int) $file->file_size,
+            'mime_type' => $file->mime_type,
+            'file_extension' => $file->file_extension,
+            'folder_id' => $file->folder_id,
+            'user_id' => $file->user_id,
+            'is_deleted' => (bool) $file->is_deleted,
+            'created_at' => $file->created_at ? $file->created_at->toIso8601String() : null,
+            'last_opened_at' => $file->last_opened_at ? $file->last_opened_at->toIso8601String() : null,
+        ];
+
+        return $this->ok($payload);
+    }
+    public function download(int $id)
+    {
+        $user = request()->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        try {
+            $info = $this->files->prepareDownloadForUser($user, $id);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            if (str_contains($lower, 'content not found') || str_contains($lower, 'version not found')) {
+                return $this->fail($message, 404, 'FILE_CONTENT_NOT_FOUND');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        // Use Storage download to return a BinaryFileResponse with proper headers
+        $disk = Storage::disk($info['disk']);
+        $path = $info['path'];
+        $downloadName = $info['download_name'];
+        $mime = $info['mime'] ?? 'application/octet-stream';
+
+        // The Storage::download will set Content-Disposition: attachment; filename="..."
+        return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
+    }
+    public function update(UpdateFileRequest $request, int $id)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $displayName = array_key_exists('display_name', $data) ? $data['display_name'] : null;
+        $folderId = array_key_exists('folder_id', $data) && $data['folder_id'] !== null ? (int) $data['folder_id'] : null;
+
+        try {
+            $file = $this->files->update($user, $id, $displayName, $folderId);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'parent folder') || str_contains($lower, 'folder not')) {
+                return $this->fail($message, 404, 'FOLDER_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not found') && str_contains($lower, 'file')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            if (str_contains($lower, 'no data') || str_contains($lower, 'at least one')) {
+                return $this->fail($message, 400, 'BAD_REQUEST');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        $payload = [
+            'message' => 'File updated successfully.',
+            'file' => [
+                'file_id' => $file->id,
+                'display_name' => $file->display_name,
+                'folder_id' => $file->folder_id,
+            ],
+        ];
+
+        return $this->ok($payload);
+    }
+    public function destroy(int $id)
+    {
+        $user = request()->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        try {
+            $this->files->moveToTrash($user, $id);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            if (str_contains($lower, 'already')) {
+                return $this->fail($message, 400, 'BAD_REQUEST');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        return $this->ok([
+            'success' => true,
+            'message' => 'File moved to trash.',
+        ]);
+    }
+    public function copy(CopyFileRequest $request, int $id)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $destinationFolderId = (int) $data['destination_folder_id'];
+        // allow flag via query or body; use Request::boolean which checks input and query string
+        $onlyLatest = $request->boolean('only_latest');
+
+        try {
+            $newFile = $this->files->copy($user, $id, $destinationFolderId, $onlyLatest);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'storage limit')) {
+                return $this->fail($message, 409, 'STORAGE_LIMIT_EXCEEDED');
+            }
+            if (str_contains($lower, 'not found') && str_contains($lower, 'version')) {
+                return $this->fail($message, 404, 'FILE_VERSION_NOT_FOUND');
+            }
+            if (str_contains($lower, 'content not found')) {
+                return $this->fail($message, 404, 'FILE_CONTENT_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not found') && str_contains($lower, 'destination')) {
+                return $this->fail($message, 404, 'FOLDER_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not found') && str_contains($lower, 'file')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        return $this->ok([
+            'success' => true,
+            'message' => 'File copied successfully.',
+            'new_file' => [
+                'file_id' => $newFile->id,
+                'display_name' => $newFile->display_name,
+                'folder_id' => $newFile->folder_id,
+            ],
+        ]);
+    }
     public function move(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
     public function recent() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
     public function sharedWithMe() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }

@@ -28,6 +28,21 @@ return Application::configure(basePath: dirname(__DIR__))
                     'meta' => null,
                 ], $e->status);
             }
+
+            // Map authentication exceptions to a standardized 401 response
+            if ($e instanceof Illuminate\Auth\AuthenticationException) {
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'error' => [
+                        'message' => $e->getMessage() ?: 'Unauthenticated',
+                        'code' => 'UNAUTHENTICATED',
+                        'errors' => null,
+                    ],
+                    'meta' => null,
+                ], 401);
+            }
+
             // Hide unhandled errors by default; only reveal details when DEV_REPORT=true
             $allowTrace = filter_var(env('DEV_REPORT', false), FILTER_VALIDATE_BOOLEAN) === true;
 
