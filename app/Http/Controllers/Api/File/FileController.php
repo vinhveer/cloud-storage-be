@@ -289,7 +289,42 @@ class FileController extends BaseApiController
             ],
         ]);
     }
-    public function move(int $id) { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
+    public function move(\App\Http\Requests\Files\MoveFileRequest $request, int $id)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $destinationFolderId = (int) $data['destination_folder_id'];
+
+        try {
+            $file = $this->files->move($user, $id, $destinationFolderId);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            $message = $e->getMessage();
+            $lower = strtolower($message);
+            if (str_contains($lower, 'not found') && str_contains($lower, 'destination')) {
+                return $this->fail($message, 404, 'FOLDER_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not found') && str_contains($lower, 'file')) {
+                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+            }
+            if (str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                return $this->fail($message, 403, 'FORBIDDEN');
+            }
+            return $this->fail($message, 400, 'BAD_REQUEST');
+        }
+
+        return $this->ok([
+            'success' => true,
+            'message' => 'File moved successfully.',
+            'file' => [
+                'file_id' => $file->id,
+                'folder_id' => $file->folder_id,
+            ],
+        ]);
+    }
     public function recent() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
     public function sharedWithMe() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }
     public function sharedByMe() { return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED'); }

@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
 @parentId = 7
 
 ### Create folder at root (200)
@@ -9,7 +9,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "folder_name": "Tài liệu học kỳ 2"
+  "folder_name": "Folder sẽ được move tới"
 }
 
 ### Create folder inside parent (200)
@@ -20,7 +20,7 @@ Authorization: Bearer {{token}}
 
 {
   "folder_name": "Bài tập",
-  "parent_folder_id": {{parentId}}
+  "parent_folder_id": 10
 }
 
 ### Missing folder_name (422)

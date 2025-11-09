@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\Folder;
 
 use App\Http\Controllers\Api\BaseApiController;
 use App\Support\Traits\WithDevTrace;
-use App\Http\Requests\StoreFolderRequest;
-use App\Http\Requests\ListFoldersRequest;
-use App\Http\Requests\UpdateFolderRequest;
+use App\Http\Requests\Folders\StoreFolderRequest;
+use App\Http\Requests\Folders\ListFoldersRequest;
+use App\Http\Requests\Folders\UpdateFolderRequest;
+use App\Http\Requests\Folders\CopyFolderRequest;
+use App\Http\Requests\Folders\MoveFolderRequest;
 use App\Services\FolderService;
 use Illuminate\Support\Facades\Auth;
 
@@ -155,14 +157,51 @@ class FolderController extends BaseApiController
         ]);
     }
 
-    public function copy(int $id)
+    public function copy(CopyFolderRequest $request, int $id)
     {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
+        $user = Auth::user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $targetFolderId = array_key_exists('target_folder_id', $data) && $data['target_folder_id'] !== null
+            ? (int) $data['target_folder_id']
+            : null;
+
+        try {
+            $newFolder = $this->folderService->copyFolder($user, $id, $targetFolderId);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            return $this->fail($e->getMessage(), 400, 'COPY_FAILED');
+        }
+
+        return $this->ok([
+            'message' => 'Folder copied successfully.',
+            'new_folder_id' => $newFolder->id,
+        ]);
     }
 
-    public function move(int $id)
+    public function move(MoveFolderRequest $request, int $id)
     {
-        return $this->fail('Not implemented', 501, 'NOT_IMPLEMENTED');
+        $user = Auth::user();
+        if (! $user) {
+            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
+        }
+
+        $data = $request->validated();
+        $targetFolderId = array_key_exists('target_folder_id', $data) && $data['target_folder_id'] !== null
+            ? (int) $data['target_folder_id']
+            : null;
+
+        try {
+            $this->folderService->moveFolder($user, $id, $targetFolderId);
+        } catch (\App\Exceptions\DomainValidationException $e) {
+            return $this->fail($e->getMessage(), 400, 'MOVE_FAILED');
+        }
+
+        return $this->ok([
+            'message' => 'Folder moved successfully.',
+        ]);
     }
 
     public function tree()

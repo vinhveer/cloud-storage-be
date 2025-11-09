@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — 200 OK
+POST {{baseUrl}}/api/files/19/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "destination_folder_id": 3
+}
+
+
+### 2) Validation fail — 422 (missing destination_folder_id)
+POST {{baseUrl}}/api/files/4/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+}
+
+
+### 3) Destination folder not found — 404
+POST {{baseUrl}}/api/files/19/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "destination_folder_id": 999999
+}
+
+
+### 4) Unauthenticated — 401
+POST {{baseUrl}}/api/files/4/move
+Accept: application/json
+Content-Type: application/json
+
+{
+    "destination_folder_id": 20
+}
+
+
+### 5) Not found (file) — 404
+POST {{baseUrl}}/api/files/999999/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "destination_folder_id": 3
+}
+
+
+### 6) Forbidden (other user's file) — 403
+# Use a token that belongs to a different user than the file owner
+POST {{baseUrl}}/api/files/4/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "destination_folder_id": 3
+}

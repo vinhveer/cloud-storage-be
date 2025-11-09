@@ -20,6 +20,57 @@ class FileService
 	}
 
 	/**
+	 * Move a file (and its versions) to another folder belonging to same user.
+	 *
+	 * This operation updates the file's `folder_id`. Physical objects are stored
+	 * under `files/{file_id}` so no filesystem copy is performed here. If the
+	 * storage layout changes in future, this method should perform the necessary
+	 * move of physical objects as well.
+	 *
+	 * @param mixed $user
+	 * @param int $fileId
+	 * @param int $destinationFolderId
+	 * @return \App\Models\File
+	 * @throws \App\Exceptions\DomainValidationException
+	 */
+	public function move($user, int $fileId, int $destinationFolderId)
+	{
+		$file = $this->fileRepository->find($fileId);
+		if (! $file) {
+			throw new \App\Exceptions\DomainValidationException('File not found');
+		}
+
+		if ($file->user_id !== $user->id) {
+			throw new \App\Exceptions\DomainValidationException('File not owned by user');
+		}
+
+		// Validate destination folder ownership
+		$folder = \App\Models\Folder::where('id', $destinationFolderId)
+			->where('user_id', $user->id)
+			->first();
+		if (! $folder) {
+			throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by user');
+		}
+
+		// No-op if already in the target folder
+		if ($file->folder_id === $destinationFolderId) {
+			return $file->fresh();
+		}
+
+		DB::beginTransaction();
+		try {
+			$file->folder_id = $destinationFolderId;
+			$file->save();
+
+			DB::commit();
+			return $file->fresh();
+		} catch (\Exception $e) {
+			DB::rollBack();
+			throw new \App\Exceptions\DomainValidationException($e->getMessage());
+		}
+	}
+
+	/**
 	 * Upload a file, save to storage and create File + FileVersion records
 	 *
 	 * @param \App\Models\User $user
@@ -326,17 +377,27 @@ class FileService
 
 		$disk = Storage::disk(config('filesystems.default', 'local'));
 
-		// Build a display name for the copy (append _copy before extension based on original latest version)
+		// Build a display name for the copy. Use deduplication instead of appending "_copy".
 		$latest = $allSourceVersions->last();
 		$latestExt = $latest->file_extension;
 		$latestSize = (int) ($latest->file_size ?? $file->file_size ?? 0);
 		$origDisplay = $file->display_name ?? ($latest->uuid . ($latestExt ? ".{$latestExt}" : ''));
-		if ($latestExt && pathinfo($origDisplay, PATHINFO_EXTENSION) === $latestExt) {
-			$base = pathinfo($origDisplay, PATHINFO_FILENAME);
-			$newDisplay = $base . '_copy' . ($latestExt ? ".{$latestExt}" : '');
-		} else {
-			$newDisplay = $origDisplay . '_copy' . ($latestExt ? ".{$latestExt}" : '');
+
+		// Candidate generation preserves extension if present on original display name.
+		$candidateBase = $origDisplay;
+		$candidate = $candidateBase;
+		$i = 0;
+		while (\App\Models\File::where('folder_id', $destinationFolderId)->where('display_name', $candidate)->exists()) {
+			$i++;
+			$suffix = $i === 1 ? ' (copy)' : " (copy {$i})";
+			if ($latestExt && pathinfo($origDisplay, PATHINFO_EXTENSION) === $latestExt) {
+				$base = pathinfo($origDisplay, PATHINFO_FILENAME);
+				$candidate = $base . $suffix . ($latestExt ? ".{$latestExt}" : '');
+			} else {
+				$candidate = $origDisplay . $suffix . ($latestExt ? ".{$latestExt}" : '');
+			}
 		}
+		$newDisplay = $candidate;
 
 		// Prepare bookkeeping for cleanup on failure
 		// Prepare temporary copy batch (outside DB transaction). Copy source versions to a temp folder first.
