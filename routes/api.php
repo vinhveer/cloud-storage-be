@@ -29,12 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/files/recent', [\App\Http\Controllers\Api\File\FileController::class, 'recent']);
     Route::get('/files/shared-with-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedWithMe']);
     Route::get('/files/shared-by-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedByMe']);
-    Route::get('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'show']);
-    Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download']);
     Route::put('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'update']);
     Route::delete('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'destroy']);
-    Route::post('/files/{id}/restore', [\App\Http\Controllers\Api\File\FileController::class, 'restore']);
-    Route::delete('/files/{id}/force', [\App\Http\Controllers\Api\File\FileController::class, 'forceDelete']);
+    
     Route::post('/files/{id}/copy', [\App\Http\Controllers\Api\File\FileController::class, 'copy']);
     Route::post('/files/{id}/move', [\App\Http\Controllers\Api\File\FileController::class, 'move']);
 
@@ -60,13 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/folders', [\App\Http\Controllers\Api\Folder\FolderController::class, 'store']);
     Route::get('/folders', [\App\Http\Controllers\Api\Folder\FolderController::class, 'index']);
     Route::get('/folders/tree', [\App\Http\Controllers\Api\Folder\FolderController::class, 'tree']);
-    Route::get('/folders/{id}/breadcrumb', [\App\Http\Controllers\Api\Folder\FolderController::class, 'breadcrumb']);
-    Route::get('/folders/{id}/contents', [\App\Http\Controllers\Api\Folder\FolderController::class, 'contents']);
-    Route::get('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'show']);
     Route::put('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'update']);
     Route::delete('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'destroy']);
-    Route::post('/folders/{id}/restore', [\App\Http\Controllers\Api\Folder\FolderController::class, 'restore']);
-    Route::delete('/folders/{id}/force', [\App\Http\Controllers\Api\Folder\FolderController::class, 'forceDelete']);
+    
     Route::post('/folders/{id}/copy', [\App\Http\Controllers\Api\Folder\FolderController::class, 'copy']);
     Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\Folder\FolderController::class, 'move']);
 
@@ -103,6 +96,22 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/public-links/{token}', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'showByToken']);
 Route::get('/public-links/{token}/preview', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'preview']);
 Route::get('/public-links/{token}/download', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'download']);
+
+// Read-only routes that accept either auth:sanctum OR public link token
+Route::get('/folders/{id}/breadcrumb', [\App\Http\Controllers\Api\Folder\FolderController::class, 'breadcrumb'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+Route::get('/folders/{id}/contents', [\App\Http\Controllers\Api\Folder\FolderController::class, 'contents'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+Route::get('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'show'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+Route::get('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class, 'show'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Auth-required public link management

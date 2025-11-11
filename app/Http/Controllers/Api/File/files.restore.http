@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — 201 Created
+POST {{baseUrl}}/api/files/22/versions/34/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 2) Unauthenticated — 401
+POST {{baseUrl}}/api/files/123/versions/3/restore
+Accept: application/json
+
+
+### 3) Forbidden — 403 (no edit permission)
+POST {{baseUrl}}/api/files/16/versions/29/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 4) File not found — 404
+POST {{baseUrl}}/api/files/999999/versions/3/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 5) Version not found — 404
+POST {{baseUrl}}/api/files/22/versions/999999/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Notes
+# - Replace the {{token}} variables with valid tokens for testing.
+# - Adjust file IDs and version IDs to match test fixtures in your local environment.
+# - Happy path expects a response like:
+# {
+#   "success": true,
+#   "message": "Version restored successfully.",
+#   "restored_to_version": {
+#     "version_id": 3,
+#     "version_number": 3,
+#     "action": "restore",
+#     "restored_at": "2025-10-12T10:00:00Z"
+#   }
+# }

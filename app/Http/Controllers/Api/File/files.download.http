@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:8000
+@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+
+### 1) Happy path — 200 (binary download)
+GET {{baseUrl}}/api/files/19/download
+Accept: application/octet-stream
+Authorization: Bearer {{token}}
+
+### 2) Unauthenticated — 401
+GET {{baseUrl}}/api/files/1/download
+Accept: application/octet-stream
+
+### 3) File not found — 404
+GET {{baseUrl}}/api/files/999999/download
+Accept: application/octet-stream
+Authorization: Bearer {{token}}
+
+### 4) Forbidden / Not owned — 403
+GET {{baseUrl}}/api/files/18/download
+Accept: application/octet-stream
+Authorization: Bearer {{token}}
+
+# Notes:
+# - Replace @token with a valid Personal Access Token or use the auth/login request to obtain one.
+# - The happy path will return a binary response with header:
+#   Content-Disposition: attachment; filename="<display_name>"
+# - The REST client may prompt to save the file when running the request in editor.

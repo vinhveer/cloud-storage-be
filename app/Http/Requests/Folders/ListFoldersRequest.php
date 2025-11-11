@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Folders;
+
+use App\Http\Requests\BaseFormRequest;
 
 class ListFoldersRequest extends BaseFormRequest
 {

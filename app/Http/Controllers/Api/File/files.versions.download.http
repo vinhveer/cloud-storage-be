@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — download specific version (authenticated)
+GET {{baseUrl}}/api/files/22/versions/35/download
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+// CHưa test trường hợp download public link
+### 2) Public link download by token (public)
+GET {{baseUrl}}/api/files/123/versions/3/download?token=PUBLIC_TOKEN
+Accept: application/json
+
+
+### 3) Unauthenticated (no token)
+GET {{baseUrl}}/api/files/123/versions/3/download
+Accept: application/json
+
+
+### 4) Version not found
+GET {{baseUrl}}/api/files/22/versions/999999/download
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### 5) Forbidden (no permission)
+GET {{baseUrl}}/api/files/6/versions/16/download
+Accept: application/json
+Authorization: Bearer {{token}}

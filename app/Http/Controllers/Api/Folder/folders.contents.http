@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — list contents
+GET {{baseUrl}}/api/folders/8/contents
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 2) Unauthenticated — 401
+GET {{baseUrl}}/api/folders/12/contents
+Accept: application/json
+
+### 3) Not found / no access — 404
+GET {{baseUrl}}/api/folders/999999/contents
+Accept: application/json
+Authorization: Bearer {{token}}

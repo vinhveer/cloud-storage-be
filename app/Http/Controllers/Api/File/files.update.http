@@ -1,0 +1,100 @@
+@baseUrl = http://localhost:8000
+@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+
+### 1) Happy path — 200 OK
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "display_name": "updated_report.txt",
+  "folder_id": 7
+}
+
+
+### 1.a) Update name only — 200 OK
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "display_name": "name_only_update.pdf"
+}
+
+
+### 1.b) Update folder only — 200 OK
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "folder_id": 2
+}
+
+
+### 2) Validation fail — 422 (missing both fields)
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+}
+
+
+### 3) Validation fail — 422 (invalid folder_id)
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "folder_id": -5
+}
+
+
+### 4) Unauthenticated — 401
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Content-Type: application/json
+
+{
+  "display_name": "should_fail.pdf"
+}
+
+
+### 5) Not found — 404 (file not found)
+PUT {{baseUrl}}/api/files/999999
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "display_name": "nope.pdf"
+}
+
+
+### 6) Forbidden (other user's file) — 403
+# Use a token that belongs to a different user than the file owner
+PUT {{baseUrl}}/api/files/18
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "display_name": "forbidden_change.pdf"
+}
+
+
+### 7) Folder not found when moving — 404 (FOLDER_NOT_FOUND)
+PUT {{baseUrl}}/api/files/4
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "folder_id": 9999999
+}

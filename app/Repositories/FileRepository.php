@@ -26,6 +26,14 @@ class FileRepository
     }
 
     /**
+     * Find file by id including soft-deleted records
+     */
+    public function findWithTrashed(int $id): ?File
+    {
+        return File::withTrashed()->find($id);
+    }
+
+    /**
      * Paginate files belonging to a user with optional filters.
      *
      * @return array{items: \Illuminate\Support\Collection, total: int}

@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 3|SUbBqa7WagymaoognufnIQyGItf3q9WsWHAxnZqX63745d2f
+@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
 @folderId = 6
 
 ### 1) Happy path — list my files (default pagination)
@@ -37,6 +37,6 @@ GET {{baseUrl}}/api/files?folder_id=999999999
 Accept: application/json
 Authorization: Bearer {{token}}
 
-### 8) Unauthenticated — 500
+### 8) Unauthenticated — 401
 GET {{baseUrl}}/api/files
 Accept: application/json

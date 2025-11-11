@@ -1,0 +1,89 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — 201 Created
+POST {{baseUrl}}/api/files/22/versions
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="action"
+
+update
+--MyBoundary
+Content-Disposition: form-data; name="notes"
+
+Updated chapter 3
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf"
+Content-Type: application/pdf
+
+< ./BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf
+--MyBoundary--
+
+
+### 2) Validation fail — 422 (missing file)
+POST {{baseUrl}}/api/files/12/versions
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="action"
+
+upload
+--MyBoundary--
+
+
+### 3) Unauthenticated — 401
+POST {{baseUrl}}/api/files/12/versions
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="action"
+
+upload
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="example.pdf"
+Content-Type: application/pdf
+
+< ./tests/fixtures/example.pdf
+--MyBoundary--
+
+
+### 4) Forbidden — 403 (no edit permission)
+POST {{baseUrl}}/api/files/16/versions
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="action"
+
+upload
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="example.pdf"
+Content-Type: application/pdf
+
+< ./tests/fixtures/example.pdf
+--MyBoundary--
+
+
+### 5) Not found — 404 (file not exist)
+POST {{baseUrl}}/api/files/999999/versions
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="action"
+
+upload
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="example.pdf"
+Content-Type: application/pdf
+
+< ./tests/fixtures/example.pdf
+--MyBoundary--

@@ -1,0 +1,71 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+@token_empty = {{token_empty}}
+@token_shared = {{token_shared}}
+
+### 1) Happy path — 200 OK (authenticated user with folders)
+GET {{baseUrl}}/api/folders/tree
+Accept: application/json
+Authorization: Bearer {{token}}
+
+
+### Expected
+# {
+#   "success": true,
+#   "data": {
+#     "folders": [
+#       {
+#         "folder_id": 1,
+#         "folder_name": "Root",
+#         "children": [ ... ]
+#       }
+#     ]
+#   },
+#   "error": null,
+#   "meta": null
+# }
+
+### 2) Unauthenticated — 401
+GET {{baseUrl}}/api/folders/tree
+Accept: application/json
+
+### Expected
+# 401 Unauthorized
+# {
+#   "success": false,
+#   "data": null,
+#   "error": { "message": "Unauthenticated", "code": "UNAUTHENTICATED" },
+#   "meta": null
+# }
+
+### 3) Empty tree — 200 OK (user has no folders)
+GET {{baseUrl}}/api/folders/tree
+Accept: application/json
+Authorization: Bearer {{token_empty}}
+
+### Expected
+# {
+#   "success": true,
+#   "data": { "folders": [] },
+#   "error": null,
+#   "meta": null
+# }
+
+
+### chưa test
+### 4) Shared-with-me — 200 OK (user has folders shared to them)
+# This token should represent a user who has been granted a share to a folder (view/download/edit). 
+GET {{baseUrl}}/api/folders/tree
+Accept: application/json
+Authorization: Bearer {{token_shared}}
+
+### Expected
+# The response should include owned folders and folders (and their descendants) that were shared to this user.
+# {
+#   "success": true,
+#   "data": {
+#     "folders": [ /* includes shared subtrees */ ]
+#   },
+#   "error": null,
+#   "meta": null
+# }

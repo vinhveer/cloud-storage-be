@@ -1,0 +1,51 @@
+@baseUrl = http://localhost:8000
+@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+
+### 1) Happy path — 200 OK
+POST {{baseUrl}}/api/folders/11/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "target_folder_id": 12
+}
+
+### 2) Move to root (null) — 200 OK
+POST {{baseUrl}}/api/folders/11/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "target_folder_id": null
+}
+
+### 3) Unauthenticated — 401
+POST {{baseUrl}}/api/folders/123/move
+Accept: application/json
+Content-Type: application/json
+
+{
+  "target_folder_id": 45
+}
+
+### 4) Invalid target (not found / not owned) — 400 - 422 (MOVE_FAILED or targeted message)
+POST {{baseUrl}}/api/folders/11/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "target_folder_id": 1111
+}
+
+### 5) Move into descendant — 400 (should be blocked)
+POST {{baseUrl}}/api/folders/12/move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "target_folder_id": 11
+}

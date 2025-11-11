@@ -17,13 +17,15 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            // generate emails that always end with @gmail.com
+            'email' => fake()->unique()->userName() . '@gmail.com',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'role' => 'user',
             'storage_limit' => 10737418240, // 10GB
-            'storage_used' => fake()->numberBetween(0, 5000000000), // 0 - 5GB
+            // start storage_used at 0 so DB will reflect actual usage computed by triggers/seeder backfill
+            'storage_used' => 0,
         ];
     }
 
@@ -39,7 +41,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'admin',
-            'email' => 'admin@example.com',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
             'storage_limit' => 10737418240,
             'storage_used' => 0,
