@@ -1,0 +1,57 @@
+### Combined Trash HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
+@fileId=1
+@folderId=
+
+### 1) Unauthenticated - should return 401
+GET {{base}}/api/trash
+Accept: {{json}}
+
+### 2) List combined trash (authenticated) - success
+GET {{base}}/api/trash
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 3) Search (files & folders)
+GET {{base}}/api/trash?search=avatar
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 4) Pagination - page 2, 1 item per page
+GET {{base}}/api/trash?page=2&per_page=1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 5) Empty result (search no match)
+GET {{base}}/api/trash?search=__no_match_12345__
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 6) Restore file (example)
+# Note: if this app still uses TrashController.restore which returns 501, adjust expectations
+POST {{base}}/api/trash/{{fileId}}/restore
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 7) Restore folder (cascade restore) (example)
+POST {{base}}/api/trash/{{folderId}}/restore
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 8) Permanently delete item (example)
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 9) Empty trash (example)
+DELETE {{base}}/api/trash/empty
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Notes
+- This file is separate from the original `Trash.api.http` you provided.
+- Replace `@token`, `@fileId`, `@folderId` with real values before running.
+- Some endpoints (restore/destroy) may still be unimplemented in the existing `TrashController`. The combined `GET /api/trash` endpoint added by me is ready to be called.
