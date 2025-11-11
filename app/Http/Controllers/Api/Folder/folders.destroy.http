@@ -1,9 +1,9 @@
 @baseUrl = http://localhost:8000
-@tokenA = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@tokenA = 4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
 @tokenB = 2|bP6KPdXQNEICpAhStRblfvOxV7Wlo7QWwUuCECZe1e176d8a
 @nonExistentId = 999999
-@folderBId = 8
-@parentId = 9
+@folderBId = 14
+@parentId =16
 @childId = 10
 
 ### Unauthenticated delete (expect 401)

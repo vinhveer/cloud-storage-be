@@ -47,11 +47,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/files/{id}/versions/{versionId}', [\App\Http\Controllers\Api\File\FileVersionController::class, 'destroy']);
 
     // Trash
+    Route::get('/trash', [\App\Http\Controllers\Api\Trash\CombinedTrashController::class, 'index']);
+    Route::get('/trash/folders/{id}/contents', [\App\Http\Controllers\Api\Trash\CombinedTrashController::class, 'folderContents']);
     Route::get('/trash/files', [\App\Http\Controllers\Api\Trash\TrashController::class, 'files']);
     Route::get('/trash/folders', [\App\Http\Controllers\Api\Trash\TrashController::class, 'folders']);
-    Route::post('/trash/{id}/restore', [\App\Http\Controllers\Api\Trash\TrashController::class, 'restore']);
-    Route::delete('/trash/{id}', [\App\Http\Controllers\Api\Trash\TrashController::class, 'destroy']);
-    Route::delete('/trash/empty', [\App\Http\Controllers\Api\Trash\TrashController::class, 'emptyTrash']);
+    Route::post('/trash/{id}/restore', [\App\Http\Controllers\Api\Trash\RestoreTrashController::class, 'restore']);
+    // specific route for emptying trash must come before the generic /trash/{id} route
+    Route::delete('/trash/empty', [\App\Http\Controllers\Api\Trash\EmptyTrashController::class, 'emptyTrash']);
+    Route::delete('/trash/{id}', [\App\Http\Controllers\Api\Trash\DeleteTrashController::class, 'destroy']);
 
     // Folders
     Route::post('/folders', [\App\Http\Controllers\Api\Folder\FolderController::class, 'store']);

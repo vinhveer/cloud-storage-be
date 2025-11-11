@@ -10,9 +10,9 @@ Content-Type: {{json}}
 
 {
   "name": "Test User",
-  "email": "test@gmail.com",
-  "password": "password123",
-  "password_confirmation": "password123",
+  "email": "test1@gmail.com",
+  "password": "123456",
+  "password_confirmation": "123456",
   "device_name": "api"
 }
 
@@ -22,8 +22,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "trinnn@gmail.com",
-  "password": "12345678",
+  "email": "test1@gmail.com",
+  "password": "123456",
   "device_name": "api"
 }
 

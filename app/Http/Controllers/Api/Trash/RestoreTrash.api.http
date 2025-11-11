@@ -1,0 +1,111 @@
+
+@base=http://localhost:8000
+@json=application/json
+@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
+@itemId=24     
+@folderId=14     
+@invalidId=9999   
+
+###1️⃣ UNAUTHENTICATED — Không có token 
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "type": "file"
+}
+
+###VALID — Restore 1 file độc lập (không nằm trong folder bị xóa)
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+### VALID — Restore folder và cascade tất cả file con
+POST {{base}}/api/trash/{{folderId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "folder"
+}
+
+### File nằm trong folder bị xóa → UI hỏi người dùng:
+# “Chỉ khôi phục file này hay khôi phục luôn folder?”
+# 4a) Restore CHỈ file bên trong folder bị xóa (nếu backend cho phép)
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file",
+  "force_restore": false
+}
+### 4b) Restore folder chứa file đó (cascade)
+POST {{base}}/api/trash/{{folderId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "folder"
+}
+
+###5INVALID — Type không hợp lệ
+
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "invalid_type"
+}
+
+### 6️⃣ INVALID — ID không tồn tại trong thùng rác
+POST {{base}}/api/trash/{{invalidId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+
+### 7️⃣ INVALID — Item đã được khôi phục rồi (restore 2 lần)
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+###8️⃣ INVALID — Sai token (JWT hết hạn hoặc bị sửa)
+
+POST {{base}}/api/trash/{{itemId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer INVALID_OR_EXPIRED_TOKEN
+
+{
+  "type": "file"
+}
+
+###🔟 OPTIONAL — Restore folder nhưng trong đó có file bị lỗi (VD: file bị xóa cứng)
+POST {{base}}/api/trash/{{folderId}}/restore
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "folder"
+}

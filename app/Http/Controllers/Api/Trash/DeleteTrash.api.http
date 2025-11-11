@@ -1,0 +1,74 @@
+@base=http://localhost:8000
+@json=application/json
+@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
+@fileId=26
+@folderId=17
+
+### 1) Unauthenticated — Expect 401 Unauthorized
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "type": "file"
+}
+
+
+### 2) Authenticated — Permanently delete a file (Success)
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+### 3) Authenticated — Permanently delete a folder (Success)
+DELETE {{base}}/api/trash/{{folderId}}
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "folder"
+}
+
+
+### 4) Invalid type field — Expect 400 Bad Request
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "invalid_type"
+}
+
+### 5) Delete item not found (already deleted or invalid ID)
+DELETE {{base}}/api/trash/99999
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+
+### 6) Delete item that is not in trash — Expect 409 Conflict
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "type": "file"
+}
+
+### 7) Missing type field — Expect 400 Bad Request
+
+DELETE {{base}}/api/trash/{{fileId}}
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}

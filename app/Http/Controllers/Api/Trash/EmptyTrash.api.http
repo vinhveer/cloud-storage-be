@@ -1,0 +1,18 @@
+### Empty Trash HTTP tests
+
+@base=http://localhost:8000
+@json=application/json
+@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
+
+### 1) Unauthenticated - should return 401
+DELETE {{base}}/api/trash/empty
+Accept: {{json}}
+
+### 2) Empty trash (authenticated)
+DELETE {{base}}/api/trash/empty
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Notes
+- This request permanently deletes all trashed files and folders belonging to the authenticated user.
+- Replace `@token` with a real Bearer token before running the test.
