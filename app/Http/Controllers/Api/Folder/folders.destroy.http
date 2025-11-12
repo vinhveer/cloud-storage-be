@@ -1,9 +1,9 @@
 @baseUrl = http://localhost:8000
-@tokenA = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
-@tokenB = 2|bP6KPdXQNEICpAhStRblfvOxV7Wlo7QWwUuCECZe1e176d8a
+@tokenA = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@tokenB = 4|jImL4cHZXwqA6m6fcMylP4HtBamLyCKNEY0zVlrf65e7b710
 @nonExistentId = 999999
 @folderBId = 8
-@parentId = 7
+@parentId = 12
 @childId = 10
 
 ### Unauthenticated delete (expect 401)
@@ -58,7 +58,7 @@ Authorization: Bearer {{tokenA}}
 
 
 ### Delete parent folder as owner (expect 200)
-DELETE {{baseUrl}}/api/folders/{{parentId}}
+DELETE {{baseUrl}}/api/folders/15
 Accept: application/json
 Authorization: Bearer {{tokenA}}
 

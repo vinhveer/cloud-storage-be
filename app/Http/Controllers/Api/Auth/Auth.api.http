@@ -23,6 +23,16 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
+  "email": "prince.crooks@gmail.com",
+  "password": "password",
+  "device_name": "api"
+}
+### Login
+POST {{base}}/api/auth/login
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
   "email": "admin@gmail.com",
   "password": "12345678",
   "device_name": "api"
