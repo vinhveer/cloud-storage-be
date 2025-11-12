@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:8000
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+
+### 1) Happy path — 200 OK
+POST {{baseUrl}}/api/bulk/bulk-move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "file_ids": [40],
+  "destination_folder_id": null
+}
+
+### 3) Unauthenticated — 401
+POST {{baseUrl}}/api/bulk/bulk-move
+Accept: application/json
+Content-Type: application/json
+
+{
+  "file_ids": [10, 11],
+  "folder_ids": [4],
+  "destination_folder_id": 8
+}
+
+### 4) Destination not found / permission denied — 400
+POST {{baseUrl}}/api/bulk/bulk-move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "file_ids": [10],
+  "destination_folder_id": 1
+}
+
+### 5) No items moved — 400 (e.g. ids invalid or not owned)
+POST {{baseUrl}}/api/bulk/bulk-move
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "file_ids": [999999],
+  "folder_ids": [888888],
+  "destination_folder_id": 20
+}

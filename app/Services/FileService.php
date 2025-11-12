@@ -36,7 +36,7 @@ class FileService
 	 * @return \App\Models\File
 	 * @throws \App\Exceptions\DomainValidationException
 	 */
-	public function move($user, int $fileId, int $destinationFolderId)
+	public function move($user, int $fileId, ?int $destinationFolderId)
 	{
 		$file = $this->fileRepository->find($fileId);
 		if (! $file) {
@@ -49,19 +49,29 @@ class FileService
 			throw new \App\Exceptions\DomainValidationException('File not owned by user');
 		}
 
-		// Validate destination folder ownership
-		$folder = \App\Models\Folder::where('id', $destinationFolderId)->first();
-		if (! $folder) {
-			throw new \App\Exceptions\DomainValidationException('Destination folder not found');
+		// Validate destination folder ownership if provided (null means root)
+		if ($destinationFolderId !== null) {
+			$folder = \App\Models\Folder::where('id', $destinationFolderId)->first();
+			if (! $folder) {
+				throw new \App\Exceptions\DomainValidationException('Destination folder not found');
+			}
 		}
 
-		// If actor is owner, destination must be owned by actor. If actor is editor (shared), only allow moving within the file owner's folders.
-		if ($isOwner) {
-			if ($folder->user_id !== $user->id) {
-				throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by user');
+		// If destination provided, enforce ownership rules.
+		if ($destinationFolderId !== null) {
+			// If actor is owner, destination must be owned by actor. If actor is editor (shared), only allow moving within the file owner's folders.
+			if ($isOwner) {
+				if ($folder->user_id !== $user->id) {
+					throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by user');
+				}
+			} else {
+				if ($folder->user_id !== $file->user_id) {
+					throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by file owner');
+				}
 			}
 		} else {
-			if ($folder->user_id !== $file->user_id) {
+			// Moving to root (null). Only allow if actor is the owner; editors (shared users) cannot move files to root of the owner.
+			if (! $isOwner) {
 				throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by file owner');
 			}
 		}
@@ -71,9 +81,39 @@ class FileService
 			return $file->fresh();
 		}
 
+		// If moving to a different folder, deduplicate display_name in destination:
+		$origDisplay = $file->display_name ?? '';
+		$candidate = $origDisplay;
+		$i = 0;
+		while (true) {
+			$q = \App\Models\File::where('display_name', $candidate)->where('user_id', $user->id);
+			if ($destinationFolderId === null) {
+				$q = $q->whereNull('folder_id');
+			} else {
+				$q = $q->where('folder_id', $destinationFolderId);
+			}
+			// exclude the file being moved
+			$q = $q->where('id', '<>', $file->id);
+			if (! $q->exists()) {
+				break;
+			}
+			$i++;
+			$suffix = $i === 1 ? '_copy' : "_copy_{$i}";
+			$ext = $file->file_extension ?? null;
+			if ($ext && pathinfo($origDisplay, PATHINFO_EXTENSION) === $ext) {
+				$base = pathinfo($origDisplay, PATHINFO_FILENAME);
+				$candidate = $base . $suffix . ($ext ? ".{$ext}" : '');
+			} else {
+				$candidate = $origDisplay . $suffix . ($ext ? ".{$ext}" : '');
+			}
+		}
+		$newDisplay = $candidate;
+
 		DB::beginTransaction();
 		try {
 			$file->folder_id = $destinationFolderId;
+			// apply deduplicated display name when moving into destination
+			$file->display_name = $newDisplay;
 			$file->save();
 
 			DB::commit();
@@ -619,7 +659,7 @@ class FileService
 	 * @return \App\Models\File
 	 * @throws \App\Exceptions\DomainValidationException
 	 */
-	public function copy($user, int $fileId, int $destinationFolderId, bool $onlyLatest = false)
+	public function copy($user, int $fileId, ?int $destinationFolderId, bool $onlyLatest = false)
 	{
 		$file = $this->fileRepository->find($fileId);
 		if (! $file) {
@@ -629,12 +669,14 @@ class FileService
 		// Allow owner or users with download permission (download includes edit)
 		$this->getFileForUser($user, $fileId, 'download');
 
-		// Validate destination folder ownership
-		$folder = \App\Models\Folder::where('id', $destinationFolderId)
-			->where('user_id', $user->id)
-			->first();
-		if (! $folder) {
-			throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by user');
+		// Validate destination folder ownership if provided (null means root)
+		if ($destinationFolderId !== null) {
+			$folder = \App\Models\Folder::where('id', $destinationFolderId)
+				->where('user_id', $user->id)
+				->first();
+			if (! $folder) {
+				throw new \App\Exceptions\DomainValidationException('Destination folder not found or not owned by user');
+			}
 		}
 
 		// Get versions from source file. If onlyLatest is true, only copy the latest version.
@@ -676,9 +718,19 @@ class FileService
 		$candidateBase = $origDisplay;
 		$candidate = $candidateBase;
 		$i = 0;
-		while (\App\Models\File::where('folder_id', $destinationFolderId)->where('display_name', $candidate)->exists()) {
+		// Explicitly scope existence check to destination folder, handling root (null) correctly.
+		while (true) {
+			$q = \App\Models\File::where('display_name', $candidate);
+			if ($destinationFolderId === null) {
+				$q = $q->whereNull('folder_id');
+			} else {
+				$q = $q->where('folder_id', $destinationFolderId);
+			}
+			if (! $q->exists()) {
+				break;
+			}
 			$i++;
-			$suffix = $i === 1 ? ' (copy)' : " (copy {$i})";
+			$suffix = $i === 1 ? '_copy' : "_copy_{$i}";
 			if ($latestExt && pathinfo($origDisplay, PATHINFO_EXTENSION) === $latestExt) {
 				$base = pathinfo($origDisplay, PATHINFO_FILENAME);
 				$candidate = $base . $suffix . ($latestExt ? ".{$latestExt}" : '');

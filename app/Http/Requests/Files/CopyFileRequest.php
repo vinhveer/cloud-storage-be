@@ -15,7 +15,8 @@ class CopyFileRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'destination_folder_id' => ['required', 'integer', 'exists:folders,id'],
+            // allow null or omitted to represent root destination
+            'destination_folder_id' => ['sometimes', 'nullable', 'integer', 'exists:folders,id'],
             // Accept common boolean representations in query or body (true/false, 1/0, on/off)
             'only_latest' => ['sometimes', 'in:1,0,true,false,on,off'],
         ];
@@ -24,7 +25,6 @@ class CopyFileRequest extends BaseFormRequest
     public function messages(): array
     {
         return [
-            'destination_folder_id.required' => 'Destination folder is required.',
             'destination_folder_id.integer' => 'Destination folder id must be an integer.',
             'destination_folder_id.exists' => 'Destination folder not found.',
             'only_latest.in' => 'The only latest field must be true or false.',

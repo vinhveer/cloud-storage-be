@@ -302,9 +302,31 @@ class FolderService
             }
         }
 
-        // Perform the move
-        DB::transaction(function () use ($source, $targetParent) {
+        // Perform the move with deduplication of folder_name in destination
+        DB::transaction(function () use ($source, $targetParent, $user) {
+            $origName = $source->folder_name ?? '';
+            $candidate = $origName;
+            $j = 0;
+            while (true) {
+                $fq = \App\Models\Folder::where('folder_name', $candidate)->where('user_id', $user->id);
+                if ($targetParent === null) {
+                    $fq = $fq->whereNull('fol_folder_id');
+                } else {
+                    $fq = $fq->where('fol_folder_id', $targetParent->id);
+                }
+                // exclude the source itself
+                $fq = $fq->where('id', '<>', $source->id);
+                if (! $fq->exists()) {
+                    break;
+                }
+                $j++;
+                $suffix = $j === 1 ? '_copy' : "_copy_{$j}";
+                $candidate = $origName . $suffix;
+            }
+
             $source->fol_folder_id = $targetParent?->id;
+            // apply deduplicated name if needed
+            $source->folder_name = $candidate;
             $source->save();
         });
     }
@@ -496,8 +518,25 @@ class FolderService
 
             // recursive create based on source tree
             $createRecursive = function (FolderModel $node, ?FolderModel $newParent) use (&$createRecursive, $user, &$tempPathsByFile, &$createdTargetPaths, &$createdFileIds, $disk) {
-                // create folder record
-                $new = $this->folders->create($user, $newParent, $node->folder_name);
+                // create folder record with deduplication in destination
+                $origFolderName = $node->folder_name ?? '';
+                $folderCandidate = $origFolderName;
+                $k = 0;
+                while (true) {
+                    $fq = \App\Models\Folder::where('folder_name', $folderCandidate)->where('user_id', $user->id);
+                    if ($newParent === null) {
+                        $fq = $fq->whereNull('fol_folder_id');
+                    } else {
+                        $fq = $fq->where('fol_folder_id', $newParent->id);
+                    }
+                    if (! $fq->exists()) {
+                        break;
+                    }
+                    $k++;
+                    $fsuffix = $k === 1 ? '_copy' : "_copy_{$k}";
+                    $folderCandidate = $origFolderName . $fsuffix;
+                }
+                $new = $this->folders->create($user, $newParent, $folderCandidate);
 
                 // create files for this folder
                 foreach ($node->files()->get() as $file) {
@@ -519,7 +558,7 @@ class FolderService
                     $j = 0;
                     while (\App\Models\File::where('folder_id', $new->id)->where('display_name', $candidate)->exists()) {
                         $j++;
-                        $suffix = $j === 1 ? ' (copy)' : " (copy {$j})";
+                        $suffix = $j === 1 ? '_copy' : "_copy_{$j}";
                         if ($latestExt && pathinfo($origDisplay, PATHINFO_EXTENSION) === $latestExt) {
                             $base = pathinfo($origDisplay, PATHINFO_FILENAME);
                             $candidate = $base . $suffix . ($latestExt ? ".{$latestExt}" : '');

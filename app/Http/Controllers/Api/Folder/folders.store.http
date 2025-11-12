@@ -20,7 +20,7 @@ Authorization: Bearer {{token}}
 
 {
   "folder_name": "Bài tập",
-  "parent_folder_id": 15
+  "parent_folder_id": 17
 }
 
 ### Missing folder_name (422)

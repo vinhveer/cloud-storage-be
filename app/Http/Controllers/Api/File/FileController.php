@@ -282,8 +282,9 @@ class FileController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
-        $data = $request->validated();
-        $destinationFolderId = (int) $data['destination_folder_id'];
+    $data = $request->validated();
+    // allow null/omitted to represent root
+    $destinationFolderId = array_key_exists('destination_folder_id', $data) ? ($data['destination_folder_id'] === null ? null : (int) $data['destination_folder_id']) : null;
         // allow flag via query or body; use Request::boolean which checks input and query string
         $onlyLatest = $request->boolean('only_latest');
         // optional public-link token
@@ -348,8 +349,9 @@ class FileController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
-        $data = $request->validated();
-        $destinationFolderId = (int) $data['destination_folder_id'];
+            $data = $request->validated();
+            // allow null/omitted to represent root
+            $destinationFolderId = array_key_exists('destination_folder_id', $data) ? ($data['destination_folder_id'] === null ? null : (int) $data['destination_folder_id']) : null;
 
         // authorize: require edit permission on the file
         try {
