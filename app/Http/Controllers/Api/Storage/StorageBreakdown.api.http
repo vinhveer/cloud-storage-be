@@ -1,0 +1,70 @@
+### Storage Breakdown API tests (comprehensive)
+
+@base=http://localhost:8000
+@json=application/json
+@token=2|i0D9nOn3QbvUWId0NWyab1TF1lnftJsf8abBO3Ei08d4b12f
+
+#################################################################
+# 1) Unauthenticated request -> expect 401
+#################################################################
+
+GET {{base}}/api/storage/breakdown
+Accept: {{json}}
+
+#################################################################
+# 2) Authenticated request -> group by extension (default)
+#################################################################
+
+GET {{base}}/api/storage/breakdown
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+# Expected example shape:
+# {
+#   "success": true,
+#   "user_id": 12,
+#   "breakdown": [
+#     { "type": "pdf", "total_size": 104857600, "count": 12 },
+#     { "type": "jpg", "total_size": 52428800, "count": 8 },
+#     { "type": "docx", "total_size": 26214400, "count": 5 },
+#     { "type": "others", "total_size": 10240000, "count": 3 }
+#   ],
+#   "total_size": 193200000
+# }
+
+#################################################################
+# 3) Authenticated request -> group by MIME
+#################################################################
+
+GET {{base}}/api/storage/breakdown?by=mime
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+# Expected example shape (mime grouping):
+# {
+#   "success": true,
+#   "user_id": 12,
+#   "breakdown": [
+#     { "type": "application/pdf", "total_size": 104857600, "count": 12 },
+#     { "type": "image/jpeg", "total_size": 52428800, "count": 8 },
+#     { "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "total_size": 26214400, "count": 5 },
+#     { "type": "others", "total_size": 10240000, "count": 3 }
+#   ],
+#   "total_size": 193200000
+# }
+
+#################################################################
+# 4) Edge cases
+# - No files -> breakdown = [], total_size = 0
+# - Extensions stored in uppercase -> grouped lowercase
+# - Empty or NULL extension/mime -> grouped as 'others'
+#################################################################
+
+GET {{base}}/api/storage/breakdown
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+# Notes:
+# - Replace `{{token}}` with a valid Sanctum personal access token for a test user.
+# - To test grouping by extension: ensure files have `file_extension` values set.
+# - To test grouping by MIME: ensure files have `mime_type` values set.

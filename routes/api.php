@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Files
     Route::post('/files', [\App\Http\Controllers\Api\File\FileController::class, 'store']);
-    Route::get('/files', [\App\Http\Controllers\Api\File\FileController::class, 'index']);
+    Route::get('/files', [\App\Http\Controllers\Api\File\FilterFilesController::class, 'index']);
     Route::get('/files/recent', [\App\Http\Controllers\Api\File\FileController::class, 'recent']);
     Route::get('/files/shared-with-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedWithMe']);
     Route::get('/files/shared-by-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedByMe']);
@@ -75,9 +75,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'updateUserPermission']);
 
     // Storage
-    Route::get('/storage/usage', [\App\Http\Controllers\Api\Storage\StorageController::class, 'usage']);
-    Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageController::class, 'breakdown']);
-    Route::get('/storage/limit', [\App\Http\Controllers\Api\Storage\StorageController::class, 'limit']);
+    Route::get('/storage/usage', [\App\Http\Controllers\Api\Storage\StorageUsageController::class, 'usage']);
+    Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageBreakdownController::class, 'breakdown']);
+    Route::get('/storage/limit', [\App\Http\Controllers\Api\Storage\StorageLimitController::class, 'limit']);
 
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'overview']);
@@ -128,10 +128,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Search (auth required)
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/search', [\App\Http\Controllers\Api\Search\SearchController::class, 'search']);
-    Route::get('/search/files', [\App\Http\Controllers\Api\Search\SearchController::class, 'files']);
-    Route::get('/search/folders', [\App\Http\Controllers\Api\Search\SearchController::class, 'folders']);
-    Route::get('/search/suggestions', [\App\Http\Controllers\Api\Search\SearchController::class, 'suggestions']);
+    // NewSearchController used instead of reference SearchController (reference file kept untouched)
+    Route::get('/search', [\App\Http\Controllers\Api\Search\NewSearchController::class, 'search']);
+    Route::get('/search/files', [\App\Http\Controllers\Api\Search\SearchFilesController::class, 'files']);
+    Route::get('/search/folders', [\App\Http\Controllers\Api\Search\SearchFoldersController::class, 'folders']);
+    Route::get('/search/suggestions', [\App\Http\Controllers\Api\Search\SearchSuggestionsController::class, 'suggestions']);
 });
 
 // Admin group (auth + admin middleware placeholder)

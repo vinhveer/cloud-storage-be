@@ -1,0 +1,84 @@
+### Admin Storage Users API tests (comprehensive)
+
+@base=http://localhost:8000
+@json=application/json
+@admin_token=3|I3iUA4Ll9RSucKM4KDKImYntmotd77vzRX8k3BU9b81bac46
+@user_token=2|i0D9nOn3QbvUWId0NWyab1TF1lnftJsf8abBO3Ei08d4b12f
+
+#################################################################
+# 1) Unauthenticated -> expect 401
+#################################################################
+
+GET {{base}}/api/admin/storage/users
+Accept: {{json}}
+
+#################################################################
+# 2) Authenticated non-admin -> expect 403 (This action is unauthorized.)
+#################################################################
+
+GET {{base}}/api/admin/storage/users
+Accept: {{json}}
+Authorization: Bearer {{user_token}}
+
+#################################################################
+# 3) Authenticated admin -> default pagination (page=1, per_page=15)
+#################################################################
+
+GET {{base}}/api/admin/storage/users
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+# Expected example shape (ApiResponse wrapper):
+# {
+#   "success": true,
+#   "data": {
+#     "data": [
+#       {
+#         "user_id": 1,
+#         "name": "Admin",
+#         "email": "admin@cloud.com",
+#         "role": "admin",
+#         "storage_limit": 10737418240,
+#         "storage_used": 1024000,
+#         "usage_percent": 0.01
+#       },
+#       {
+#         "user_id": 2,
+#         "name": "Nguyen Van A",
+#         "email": "user@gmail.com",
+#         "role": "user",
+#         "storage_limit": 10737418240,
+#         "storage_used": 524288000,
+#         "usage_percent": 4.88
+#       }
+#     ],
+#     "pagination": {
+#       "current_page": 1,
+#       "total_pages": 1,
+#       "total_items": 2
+#     }
+#   },
+#   "error": null,
+#   "meta": null
+# }
+
+#################################################################
+# 4) Search by name or email
+#################################################################
+
+GET {{base}}/api/admin/storage/users?search=Nguyen
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+#################################################################
+# 5) Pagination parameters
+#################################################################
+
+GET {{base}}/api/admin/storage/users?page=2&per_page=5
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+# Notes:
+# - Replace `{{admin_token}}` and `{{user_token}}` with real tokens.
+# - The API returns `usage_percent` as a float rounded to 2 decimals.
+# - Users with NULL storage_limit or storage_used are treated as 0.
