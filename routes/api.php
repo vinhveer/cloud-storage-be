@@ -75,7 +75,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'updateUserPermission']);
 
     // Storage
-    Route::get('/storage/usage', [\App\Http\Controllers\Api\Storage\StorageUsageController::class, 'usage']);
     Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageBreakdownController::class, 'breakdown']);
     Route::get('/storage/limit', [\App\Http\Controllers\Api\Storage\StorageLimitController::class, 'limit']);
 
