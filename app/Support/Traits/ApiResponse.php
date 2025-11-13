@@ -13,7 +13,7 @@ trait ApiResponse
             'data' => $error === null ? $data : null,
             'error' => $error,
             'meta' => $meta,
-        ], $status);
+        ], $status, [], JSON_UNESCAPED_SLASHES);
     }
 
     protected function ok(mixed $data = null, ?array $meta = null): JsonResponse
