@@ -1,0 +1,33 @@
+@base=http://localhost:8000
+@json=application/json
+@token=4|pTEv0RhFJfFFSUTkpBPavtlp3ka6bboTq1o4kBwb3477d2ec
+
+### Suggestions - missing q (expect 400)
+GET {{base}}/api/search/suggestions
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Suggestions - files only
+GET {{base}}/api/search/suggestions?q=design&type=file&limit=5
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Suggestions - folders only
+GET {{base}}/api/search/suggestions?q=Doc&type=folder&limit=5
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Suggestions - all
+GET {{base}}/api/search/suggestions?q=repo&type=all&limit=10
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Suggestions - limit clamp
+GET {{base}}/api/search/suggestions?q=a&limit=200
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Suggestions - search for BaoCao (should match many duplicates)
+GET {{base}}/api/search/suggestions?q=BaoCao&type=file&limit=5
+Accept: {{json}}
+Authorization: Bearer {{token}}

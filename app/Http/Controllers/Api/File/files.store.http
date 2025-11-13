@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 2|i0D9nOn3QbvUWId0NWyab1TF1lnftJsf8abBO3Ei08d4b12f
+@token = 4|pTEv0RhFJfFFSUTkpBPavtlp3ka6bboTq1o4kBwb3477d2ec
 
 ### 1) Upload file - success (root folder) — expects 201 Created
 POST {{baseUrl}}/api/files
@@ -28,7 +28,7 @@ Content-Type: application/pdf
 --MyBoundary
 Content-Disposition: form-data; name="folder_id"
 
-7
+14
 --MyBoundary
 Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
 
