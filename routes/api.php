@@ -128,10 +128,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Search (auth required)
 Route::middleware(['auth:sanctum'])->group(function () {
-    // NewSearchController used instead of reference SearchController (reference file kept untouched)
-    Route::get('/search', [\App\Http\Controllers\Api\Search\NewSearchController::class, 'search']);
-    Route::get('/search/files', [\App\Http\Controllers\Api\Search\SearchFilesController::class, 'files']);
-    Route::get('/search/folders', [\App\Http\Controllers\Api\Search\SearchFoldersController::class, 'folders']);
+    Route::get('/search', [\App\Http\Controllers\Api\Search\SearchController::class, 'search']);
     Route::get('/search/suggestions', [\App\Http\Controllers\Api\Search\SearchSuggestionsController::class, 'suggestions']);
 });
 
