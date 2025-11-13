@@ -9,7 +9,7 @@ Route::post('/register', [\App\Http\Controllers\Api\Auth\AuthController::class, 
 Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class, 'login']);
 Route::post('/forgot-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'forgot']);
 Route::post('/reset-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'reset']);
-Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify']);
+Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify'])->name('api.email.verify');
 Route::post('/email/resend', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'resend']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [\App\Http\Controllers\Api\Auth\AuthController::class, 'me']);
 
     // User profile
+    Route::get('/me', [\App\Http\Controllers\Api\User\UserController::class, 'show']);
     Route::get('/user', [\App\Http\Controllers\Api\User\UserController::class, 'show']);
     Route::put('/user/profile', [\App\Http\Controllers\Api\User\UserController::class, 'updateProfile']);
     Route::put('/user/password', [\App\Http\Controllers\Api\User\UserController::class, 'updatePassword']);

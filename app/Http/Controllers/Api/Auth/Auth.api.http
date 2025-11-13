@@ -5,7 +5,7 @@
 @token=1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
 
 ### Register
-POST {{base}}/api/auth/register
+POST {{base}}/api/auth/register1
 Accept: {{json}}
 Content-Type: {{json}}
 
@@ -23,23 +23,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-<<<<<<< HEAD
-  "email": "prince.crooks@gmail.com",
-  "password": "password",
-  "device_name": "api"
-}
-### Login
-POST {{base}}/api/auth/login
-Accept: {{json}}
-Content-Type: {{json}}
-
-{
-  "email": "hunghuy0925@gmail.com",
-  "password": "00000000",
-=======
   "email": "test@gmail.com",
   "password": "password123",
->>>>>>> c4746d5 (Update Auth)
   "device_name": "api"
 }
 
@@ -82,7 +67,7 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "user@gmail.com"
+  "email": "hunghuy0925@gmail.com"
 }
 ###
 POST {{base}}/api/forgot-password
@@ -90,7 +75,7 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "user@gmail.com"
+  "email": "hunghuy0925@gmail.com"
 }
 
 ### 2) Validation fail — 422 (invalid email)
