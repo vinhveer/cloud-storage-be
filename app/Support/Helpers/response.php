@@ -7,7 +7,7 @@ if (! function_exists('api_ok')) {
             'data' => $data,
             'error' => null,
             'meta' => $meta,
-        ], 200);
+        ], 200, [], JSON_UNESCAPED_SLASHES);
     }
 }
 

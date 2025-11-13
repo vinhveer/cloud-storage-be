@@ -81,15 +81,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'overview']);
-    Route::get('/dashboard/recent', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'recent']);
     Route::get('/dashboard/stats', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'stats']);
 
     // Bulk files
-    Route::post('/files/bulk-delete', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkDelete']);
-    Route::post('/files/bulk-move', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkMove']);
-    Route::post('/files/bulk-copy', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkCopy']);
-    Route::post('/files/bulk-share', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkShare']);
-    Route::post('/files/bulk-download', [\App\Http\Controllers\Api\File\FileBulkController::class, 'bulkDownload']);
+    Route::post('/bulk/bulk-delete', [\App\Http\Controllers\Api\Bulk\BulkController::class, 'bulkDelete']);
+    Route::post('/bulk/bulk-move', [\App\Http\Controllers\Api\Bulk\BulkController::class, 'bulkMove']);
+    Route::post('/bulk/bulk-copy', [\App\Http\Controllers\Api\Bulk\BulkController::class, 'bulkCopy']);
+    Route::post('/bulk/bulk-share', [\App\Http\Controllers\Api\Bulk\BulkController::class, 'bulkShare']);
+    Route::post('/bulk/bulk-download', [\App\Http\Controllers\Api\Bulk\BulkController::class, 'bulkDownload']);
 });
 
 // Public links (no auth)
@@ -111,6 +110,10 @@ Route::get('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class,
     ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
 Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+// File preview (supports public link tokens via AuthOrPublicLink middleware)
+Route::get('/files/{id}/preview', [\App\Http\Controllers\Api\File\FilePreviewController::class, 'show'])
     ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
 Route::middleware(['auth:sanctum'])->group(function () {

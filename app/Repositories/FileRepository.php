@@ -64,4 +64,14 @@ class FileRepository
             'total' => (int) $total,
         ];
     }
+
+    /**
+     * Get a file with its latest version loaded (or null if not found).
+     */
+    public function getWithLatestVersion(int $id)
+    {
+        return File::where('id', $id)
+            ->with(['versions' => function ($q) { $q->orderByDesc('version_number')->limit(1); }])
+            ->first();
+    }
 }

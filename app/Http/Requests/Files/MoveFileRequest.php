@@ -17,7 +17,8 @@ class MoveFileRequest extends BaseFormRequest
         // Do NOT validate existence here so that non-existent or not-owned
         // folders are handled as domain errors (404) by the service layer.
         return [
-            'destination_folder_id' => ['required', 'integer', 'min:1'],
+            // allow null/omitted to represent root; validate existence in service
+            'destination_folder_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
         ];
     }
 

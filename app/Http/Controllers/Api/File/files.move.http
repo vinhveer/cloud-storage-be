@@ -1,14 +1,14 @@
 @baseUrl = http://localhost:8000
-@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
 ### 1) Happy path — 200 OK
-POST {{baseUrl}}/api/files/19/move
+POST {{baseUrl}}/api/files/40/move
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "destination_folder_id": 3
+    "destination_folder_id": 24
 }
 
 

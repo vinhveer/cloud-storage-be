@@ -1,111 +1,72 @@
+@baseUrl = http://localhost:8000
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
-@base=http://localhost:8000
-@json=application/json
-@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
-@itemId=24     
-@folderId=14     
-@invalidId=9999   
-
-###1️⃣ UNAUTHENTICATED — Không có token 
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
+### 1) Happy path - restore top-level file (200)
+POST {{baseUrl}}/api/trash/28/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
   "type": "file"
 }
 
-###VALID — Restore 1 file độc lập (không nằm trong folder bị xóa)
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
+### 2) Happy path - restore top-level folder (200)
+POST {{baseUrl}}/api/trash/17/restore
+Accept: application/json
 Authorization: Bearer {{token}}
-
-{
-  "type": "file"
-}
-
-### VALID — Restore folder và cascade tất cả file con
-POST {{base}}/api/trash/{{folderId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
   "type": "folder"
 }
 
-### File nằm trong folder bị xóa → UI hỏi người dùng:
-# “Chỉ khôi phục file này hay khôi phục luôn folder?”
-# 4a) Restore CHỈ file bên trong folder bị xóa (nếu backend cho phép)
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
+### 3) Validation fail - missing type (422)
+POST {{baseUrl}}/api/trash/15/restore
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "file",
-  "force_restore": false
 }
-### 4b) Restore folder chứa file đó (cascade)
-POST {{base}}/api/trash/{{folderId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
+
+### 4) Validation fail - invalid type (422)
+POST {{baseUrl}}/api/trash/15/restore
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "folder"
+  "type": "unknown"
 }
 
-###5INVALID — Type không hợp lệ
-
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}
-
-{
-  "type": "invalid_type"
-}
-
-### 6️⃣ INVALID — ID không tồn tại trong thùng rác
-POST {{base}}/api/trash/{{invalidId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}
+### 5) Unauthenticated - no token (401)
+POST {{baseUrl}}/api/trash/15/restore
+Accept: application/json
+Content-Type: application/json
 
 {
   "type": "file"
 }
 
-
-### 7️⃣ INVALID — Item đã được khôi phục rồi (restore 2 lần)
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
+### 6) Bad request - trying to restore a child item directly (400)
+# Replace 16 with an actual child trashed file id to test
+POST {{baseUrl}}/api/trash/16/restore
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
   "type": "file"
 }
 
-###8️⃣ INVALID — Sai token (JWT hết hạn hoặc bị sửa)
-
-POST {{base}}/api/trash/{{itemId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer INVALID_OR_EXPIRED_TOKEN
+### 7) Not found / Not in trash (400)
+# Replace 99999 with an id that does not exist or is not trashed
+POST {{baseUrl}}/api/trash/99999/restore
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
   "type": "file"
-}
-
-###🔟 OPTIONAL — Restore folder nhưng trong đó có file bị lỗi (VD: file bị xóa cứng)
-POST {{base}}/api/trash/{{folderId}}/restore
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}
-
-{
-  "type": "folder"
 }

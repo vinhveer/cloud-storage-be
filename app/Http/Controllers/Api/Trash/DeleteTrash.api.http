@@ -1,74 +1,62 @@
-@base=http://localhost:8000
-@json=application/json
-@token=4|tYVWuFANxi0OUTeVep4xx0ka1Gfj8WK2OLr0ajtZf8136238
-@fileId=26
-@folderId=17
+@baseUrl = http://localhost:8000
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
-### 1) Unauthenticated — Expect 401 Unauthorized
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Content-Type: {{json}}
+### 1) Happy path - delete trashed file (200)
+DELETE {{baseUrl}}/api/trash/27
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "file"
+	"type": "file"
 }
 
-
-### 2) Authenticated — Permanently delete a file (Success)
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Content-Type: {{json}}
+### 2) Happy path - delete trashed folder (200)
+DELETE {{baseUrl}}/api/trash/15
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "file"
+	"type": "folder"
 }
 
-### 3) Authenticated — Permanently delete a folder (Success)
-DELETE {{base}}/api/trash/{{folderId}}
-Accept: {{json}}
-Content-Type: {{json}}
+### 3) Validation fail - missing/invalid type (422)
+DELETE {{baseUrl}}/api/trash/1
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "folder"
+	"type": "invalid"
 }
 
-
-### 4) Invalid type field — Expect 400 Bad Request
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}
+### 4) Unauthenticated (401)
+DELETE {{baseUrl}}/api/trash/1
+Accept: application/json
+Content-Type: application/json
 
 {
-  "type": "invalid_type"
+	"type": "file"
 }
 
-### 5) Delete item not found (already deleted or invalid ID)
-DELETE {{base}}/api/trash/99999
-Accept: {{json}}
-Content-Type: {{json}}
+### 5) Cannot delete child item directly (400)
+DELETE {{baseUrl}}/api/trash/<<child_id>>
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "file"
+	"type": "file"
 }
 
-
-### 6) Delete item that is not in trash — Expect 409 Conflict
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Content-Type: {{json}}
+### 6) Not found in trash (404)
+DELETE {{baseUrl}}/api/trash/999999
+Accept: application/json
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
-  "type": "file"
+	"type": "file"
 }
 
-### 7) Missing type field — Expect 400 Bad Request
-
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{token}}

@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=2|i0D9nOn3QbvUWId0NWyab1TF1lnftJsf8abBO3Ei08d4b12f
+@token=5|MVJJWbz0KG3mHZ13SLAxcHldwthhen3xXVkhs92y9bf1e07b
 @fileId=1
 @folderId=
 
@@ -16,7 +16,7 @@ Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 3) Search (files & folders)
-GET {{base}}/api/trash?search=avatar
+GET {{base}}/api/trash?search=Bao
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
@@ -29,29 +29,3 @@ Authorization: Bearer {{token}}
 GET {{base}}/api/trash?search=__no_match_12345__
 Accept: {{json}}
 Authorization: Bearer {{token}}
-
-### 6) Restore file (example)
-# Note: if this app still uses TrashController.restore which returns 501, adjust expectations
-POST {{base}}/api/trash/{{fileId}}/restore
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### 7) Restore folder (cascade restore) (example)
-POST {{base}}/api/trash/{{folderId}}/restore
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### 8) Permanently delete item (example)
-DELETE {{base}}/api/trash/{{fileId}}
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### 9) Empty trash (example)
-DELETE {{base}}/api/trash/empty
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### Notes
-- This file is separate from the original `Trash.api.http` you provided.
-- Replace `@token`, `@fileId`, `@folderId` with real values before running.
-- Some endpoints (restore/destroy) may still be unimplemented in the existing `TrashController`. The combined `GET /api/trash` endpoint added by me is ready to be called.

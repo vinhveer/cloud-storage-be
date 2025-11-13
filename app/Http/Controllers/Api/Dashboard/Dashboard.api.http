@@ -2,20 +2,22 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=YOUR_TOKEN_HERE
+# @token=YOUR_TOKEN_HERE
+@token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
 ### Get dashboard overview
+# Lấy tổng quan dashboard
 GET {{base}}/api/dashboard
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
-### Get recent activities
-GET {{base}}/api/dashboard/recent
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
 ### Get stats
+# Lấy thống kê
 GET {{base}}/api/dashboard/stats
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
+### Unauthenticated — should return 401
+# Lỗi khi không đăng nhập
+GET {{base}}/api/dashboard
+Accept: {{json}}

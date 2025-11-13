@@ -178,6 +178,13 @@ class FileController extends BaseApiController
         $mime = $info['mime'] ?? 'application/octet-stream';
 
         // The Storage::download will set Content-Disposition: attachment; filename="..."
+        // Mark file as opened (throttled inside service) since we are delivering content.
+        try {
+            $this->files->markOpened($id);
+        } catch (\Exception $_) {
+            // Non-fatal: don't prevent download if marking fails.
+        }
+
         return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
     }
     public function update(UpdateFileRequest $request, int $id)
@@ -282,8 +289,9 @@ class FileController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
-        $data = $request->validated();
-        $destinationFolderId = (int) $data['destination_folder_id'];
+    $data = $request->validated();
+    // allow null/omitted to represent root
+    $destinationFolderId = array_key_exists('destination_folder_id', $data) ? ($data['destination_folder_id'] === null ? null : (int) $data['destination_folder_id']) : null;
         // allow flag via query or body; use Request::boolean which checks input and query string
         $onlyLatest = $request->boolean('only_latest');
         // optional public-link token
@@ -348,8 +356,9 @@ class FileController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
-        $data = $request->validated();
-        $destinationFolderId = (int) $data['destination_folder_id'];
+            $data = $request->validated();
+            // allow null/omitted to represent root
+            $destinationFolderId = array_key_exists('destination_folder_id', $data) ? ($data['destination_folder_id'] === null ? null : (int) $data['destination_folder_id']) : null;
 
         // authorize: require edit permission on the file
         try {

@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:8000
-@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
 ### 1) Happy path — 201 Created
-POST {{baseUrl}}/api/files/22/versions
+POST {{baseUrl}}/api/files/21/versions
 Authorization: Bearer {{token}}
 Accept: application/json
 Content-Type: multipart/form-data; boundary=MyBoundary

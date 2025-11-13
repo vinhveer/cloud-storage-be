@@ -3,14 +3,24 @@
 namespace App\Http\Controllers\Api\Trash;
 
 use App\Http\Controllers\Api\BaseApiController;
-use Illuminate\Http\Request;
-use App\Models\Folder;
-use App\Models\File as FileModel;
-use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Trash\DeleteTrashRequest;
+use App\Exceptions\DomainValidationException;
+use App\Services\TrashService;
 
 class DeleteTrashController extends BaseApiController
 {
-    public function destroy(Request $request, $id) // bỏ kiểu int ở đây
+    private TrashService $trashService;
+
+    public function __construct(TrashService $trashService)
+    {
+        $this->trashService = $trashService;
+    }
+
+    /**
+     * Permanently delete a trashed file or folder.
+     * Expects validated `type` via DeleteTrashRequest (file|folder) and an id param.
+     */
+    public function destroy(DeleteTrashRequest $request, $id)
     {
         $user = $request->user();
         if (! $user) {
@@ -18,92 +28,20 @@ class DeleteTrashController extends BaseApiController
         }
 
         $type = $request->input('type');
-        if (! in_array($type, ['file', 'folder'], true)) {
-            return $this->fail('Invalid type. Must be "file" or "folder".', 400, 'INVALID_TYPE');
-        }
-
-        $id = (int) $id; // ép kiểu an toàn
 
         try {
-            DB::beginTransaction();
-
             if ($type === 'file') {
-                $file = FileModel::onlyTrashed()
-                    ->where('id', $id)
-                    ->where('user_id', $user->id)
-                    ->first();
-
-                if (! $file) {
-                    DB::rollBack();
-                    return $this->fail('File not found in trash', 404, 'FILE_NOT_FOUND');
-                }
-
-                // Nếu file chưa nằm trong trash (chưa xóa mềm)
-                if (! $file->trashed()) {
-                    DB::rollBack();
-                    return $this->fail('File is not in trash', 409, 'NOT_IN_TRASH');
-                }
-
-                $file->forceDelete();
-
-                DB::commit();
-                return $this->ok([
-                    'success' => true,
-                    'message' => 'File permanently deleted.',
-                    'deleted_item' => [
-                        'id' => $id,
-                        'type' => 'file',
-                        'display_name' => $file->display_name ?? $file->name,
-                    ]
-                ]);
+                $this->trashService->permanentlyDeleteFile($user, (int) $id);
+            } else {
+                $this->trashService->permanentlyDeleteFolder($user, (int) $id);
             }
 
-            // --- Folder ---
-            $folder = Folder::onlyTrashed()
-                ->where('id', $id)
-                ->where('user_id', $user->id)
-                ->first();
-
-            if (! $folder) {
-                DB::rollBack();
-                return $this->fail('Folder not found in trash', 404, 'FOLDER_NOT_FOUND');
-            }
-
-            if (! $folder->trashed()) {
-                DB::rollBack();
-                return $this->fail('Folder is not in trash', 409, 'NOT_IN_TRASH');
-            }
-
-            // Recursive cascade delete
-            $cascade = function (Folder $f) use (&$cascade) {
-                // Delete files
-                FileModel::onlyTrashed()->where('folder_id', $f->id)->forceDelete();
-
-                // Delete children
-                $children = Folder::onlyTrashed()->where('fol_folder_id', $f->id)->get();
-                foreach ($children as $child) {
-                    $cascade($child);
-                }
-
-                // Delete this folder
-                $f->forceDelete();
-            };
-
-            $cascade($folder);
-
-            DB::commit();
-            return $this->ok([
-                'success' => true,
-                'message' => 'Folder permanently deleted.',
-                'deleted_item' => [
-                    'id' => $id,
-                    'type' => 'folder',
-                    'display_name' => $folder->display_name ?? $folder->name,
-                ]
-            ]);
+            return $this->ok(['message' => 'Item permanently deleted.']);
+        } catch (DomainValidationException $e) {
+            // service already rolled back where necessary
+            return $this->fail('Failed to delete item: ' . $e->getMessage(), 400, 'DELETE_FAILED');
         } catch (\Throwable $e) {
-            DB::rollBack();
-            return $this->fail('Internal server error: ' . $e->getMessage(), 500, 'DELETE_FAILED');
+            return $this->fail('Failed to delete item: ' . $e->getMessage(), 500, 'DELETE_FAILED');
         }
     }
 }
