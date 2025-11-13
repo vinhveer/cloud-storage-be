@@ -23,6 +23,7 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
+<<<<<<< HEAD
   "email": "prince.crooks@gmail.com",
   "password": "password",
   "device_name": "api"
@@ -35,6 +36,10 @@ Content-Type: {{json}}
 {
   "email": "hunghuy0925@gmail.com",
   "password": "00000000",
+=======
+  "email": "test@gmail.com",
+  "password": "password123",
+>>>>>>> c4746d5 (Update Auth)
   "device_name": "api"
 }
 
@@ -52,4 +57,57 @@ Authorization: Bearer {{token}}
 POST {{base}}/api/auth/logout-all
 Accept: {{json}}
 Authorization: Bearer {{token}}
+
+### 1) Happy path — 200 OK
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "user@gmail.com"
+}
+
+### 1b) Non-existing email — 200 OK (generic response, no enumeration)
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "does-not-exist-123456@example.com"
+}
+
+### 1c) Idempotent repeated request — 200 OK (same email twice)
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "user@gmail.com"
+}
+###
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "user@gmail.com"
+}
+
+### 2) Validation fail — 422 (invalid email)
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "not-an-email"
+}
+
+### 3) Validation fail — 422 (missing email)
+POST {{base}}/api/forgot-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+}
+
 

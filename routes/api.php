@@ -7,8 +7,8 @@ Route::get('/health', \App\Http\Controllers\Api\Health\HealthController::class);
 // Auth
 Route::post('/register', [\App\Http\Controllers\Api\Auth\AuthController::class, 'register']);
 Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class, 'login']);
-Route::post('/forgot-password', [\App\Http\Controllers\Api\Password\PasswordController::class, 'forgot']);
-Route::post('/reset-password', [\App\Http\Controllers\Api\Password\PasswordController::class, 'reset']);
+Route::post('/forgot-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'forgot']);
+Route::post('/reset-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'reset']);
 Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify']);
 Route::post('/email/resend', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'resend']);
 
