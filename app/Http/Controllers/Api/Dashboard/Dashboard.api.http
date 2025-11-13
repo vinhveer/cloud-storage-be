@@ -3,34 +3,13 @@
 @base=http://localhost:8000
 @json=application/json
 # @token=YOUR_TOKEN_HERE
-@token=14|ZnDeGQR4gcG1XPvTl7meLakQiYTeZTka7ryChsjF9d8beb5a
+@token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
 
 ### Get dashboard overview
 # Lấy tổng quan dashboard
 GET {{base}}/api/dashboard
 Accept: {{json}}
 Authorization: Bearer {{token}}
-
-
-### Get recent activities
-# Lấy hoạt động gần đây
-GET {{base}}/api/dashboard/recent
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### Get recent activities with limit
-# Lấy hoạt động gần đây với limit
-GET {{base}}/api/dashboard/recent?limit=5
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### Get recent activities with invalid limit
-# Lấy hoạt động gần đây với limit không hợp lệ
-GET {{base}}/api/dashboard/recent?limit=invalid
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-
 
 ### Get stats
 # Lấy thống kê

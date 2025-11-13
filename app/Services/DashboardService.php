@@ -41,57 +41,7 @@ class DashboardService
         ];
     }
 
-    public function getRecent(User $user, int $limit = 10): array
-    {
-        $limit = max(1, min($limit, 100));
-
-        $files = File::where('user_id', $user->id)
-            ->where('is_deleted', false)
-            ->select(['id', 'display_name', 'mime_type', 'file_size', 'last_opened_at', 'created_at'])
-            ->get()
-            ->map(function (File $f) {
-                $ts = $f->last_opened_at ?? $f->created_at;
-                return [
-                    'type' => 'file',
-                    'id' => $f->id,
-                    'name' => $f->display_name,
-                    'mime_type' => $f->mime_type,
-                    'file_size' => (int) $f->file_size,
-                    'timestamp' => $ts?->getTimestamp(),
-                    'last_opened_at' => $f->last_opened_at?->toISOString(),
-                ];
-            });
-
-        $folders = Folder::where('user_id', $user->id)
-            ->where('is_deleted', false)
-            ->select(['id', 'folder_name', 'created_at'])
-            ->get()
-            ->map(function (Folder $d) {
-                return [
-                    'type' => 'folder',
-                    'id' => $d->id,
-                    'name' => $d->folder_name,
-                    'timestamp' => $d->created_at?->getTimestamp(),
-                    'created_at' => $d->created_at?->toISOString(),
-                ];
-            });
-
-        /** @var Collection<int, array> $combined */
-        $combined = $files->concat($folders)
-            ->filter(fn($item) => $item['timestamp'] !== null)
-            ->sortByDesc(fn($item) => $item['timestamp'])
-            ->values()
-            ->take($limit)
-            ->map(function (array $item) {
-                // Strip internal timestamp field
-                unset($item['timestamp']);
-                return $item;
-            });
-
-        return [
-            'data' => $combined->all(),
-        ];
-    }
+    
 
     public function getStats(User $user): array
     {

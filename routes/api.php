@@ -81,7 +81,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'overview']);
-    Route::get('/dashboard/recent', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'recent']);
     Route::get('/dashboard/stats', [\App\Http\Controllers\Api\Dashboard\DashboardController::class, 'stats']);
 
     // Bulk files

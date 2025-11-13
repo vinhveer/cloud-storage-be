@@ -22,18 +22,6 @@ class DashboardController extends BaseApiController
         return $this->ok($data);
     }
 
-    public function recent(RecentRequest $request)
-    {
-        $user = $request->user();
-        if (! $user) {
-            return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
-        }
-
-        $limit = (int) ($request->query('limit', 10));
-        $data = $this->dashboard->getRecent($user, $limit);
-        return $this->ok($data);
-    }
-
     public function stats(Request $request)
     {
         $user = $request->user();
