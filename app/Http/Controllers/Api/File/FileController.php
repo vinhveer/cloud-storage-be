@@ -178,6 +178,13 @@ class FileController extends BaseApiController
         $mime = $info['mime'] ?? 'application/octet-stream';
 
         // The Storage::download will set Content-Disposition: attachment; filename="..."
+        // Mark file as opened (throttled inside service) since we are delivering content.
+        try {
+            $this->files->markOpened($id);
+        } catch (\Exception $_) {
+            // Non-fatal: don't prevent download if marking fails.
+        }
+
         return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
     }
     public function update(UpdateFileRequest $request, int $id)

@@ -568,6 +568,46 @@ class FileService
 	}
 
 	/**
+	 * Mark a file as opened by updating `last_opened_at`.
+	 *
+	 * - Throttles updates to avoid DB churn: only update when the previous
+	 *   `last_opened_at` is null or older than $thresholdMinutes.
+	 * - Uses a direct DB update for low overhead and to avoid touching other
+	 *   model timestamps/events.
+	 *
+	 * @param int $fileId
+	 * @param int $thresholdMinutes
+	 * @return void
+	 */
+	public function markOpened(int $fileId, int $thresholdMinutes = 5): void
+	{
+		$now = Carbon::now();
+
+		$row = \DB::table('files')->where('id', $fileId)->select('last_opened_at')->first();
+		if (! $row) {
+			return;
+		}
+
+		$last = $row->last_opened_at;
+		if ($last === null) {
+			\DB::table('files')->where('id', $fileId)->update(['last_opened_at' => $now]);
+			return;
+		}
+
+		try {
+			$lastTs = Carbon::parse($last);
+		} catch (\Exception $e) {
+			// If parsing fails for some reason, just write a new timestamp.
+			\DB::table('files')->where('id', $fileId)->update(['last_opened_at' => $now]);
+			return;
+		}
+
+		if ($lastTs->diffInMinutes($now) >= $thresholdMinutes) {
+			\DB::table('files')->where('id', $fileId)->update(['last_opened_at' => $now]);
+		}
+	}
+
+	/**
 	 * Update file information: display_name and/or folder_id (move)
 	 *
 	 * @param mixed $user

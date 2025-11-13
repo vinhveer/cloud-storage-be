@@ -204,6 +204,13 @@ class FileVersionController extends BaseApiController
         $downloadName = $info['download_name'];
         $mime = $info['mime'] ?? 'application/octet-stream';
 
+        // Mark parent file as opened (throttled inside service). We update before returning the stream.
+        try {
+            $this->files->markOpened($id);
+        } catch (\Exception $_) {
+            // ignore non-fatal errors
+        }
+
         return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
     }
     public function restore(Request $request, int $id, int $versionId)
