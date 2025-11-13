@@ -112,6 +112,10 @@ Route::get('/files/{id}', [\App\Http\Controllers\Api\File\FileController::class,
 Route::get('/files/{id}/download', [\App\Http\Controllers\Api\File\FileController::class, 'download'])
     ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
+// File preview (supports public link tokens via AuthOrPublicLink middleware)
+Route::get('/files/{id}/preview', [\App\Http\Controllers\Api\File\FilePreviewController::class, 'show'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     // Auth-required public link management
     Route::post('/public-links', [\App\Http\Controllers\Api\PublicLink\PublicLinkController::class, 'store']);

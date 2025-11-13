@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:8000
+@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token_other = fdfdsf
+@publicToken = dfsfsdf
+
+### 1) Happy path — authenticated PDF/image/video/audio preview (200)
+GET {{baseUrl}}/api/files/43/preview
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expect: 200 OK with preview_url + expires_in
+
+
+// CHUA TEST
+### 2) Public link — preview via token query (200)
+GET {{baseUrl}}/api/files/42/preview?token={{publicToken}}
+Accept: application/json
+
+### Expect: 200 OK with preview_url (no Authorization header required)
+
+
+### 3) Unauthenticated — missing auth and token (401)
+GET {{baseUrl}}/api/files/42/preview
+Accept: application/json
+
+### Expect: 401 UNAUTHENTICATED
+
+
+### 4) Forbidden — authenticated but not allowed (403)
+GET {{baseUrl}}/api/files/10/preview
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expect: 403 FORBIDDEN (user does not have access to file 99)
+
+
+### 5) Unsupported file type — preview not supported (400)
+GET {{baseUrl}}/api/files/55/preview
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expect: 400 PREVIEW_NOT_SUPPORTED with message "Preview not supported for this file type."
+
+
+### 6) Office document conversion unavailable (501)
+GET {{baseUrl}}/api/files/56/preview
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expect: 501 PREVIEW_CONVERSION_UNAVAILABLE with message about external converter
+
+
+### 7) TXT preview — converted to simple HTML preview (200)
+GET {{baseUrl}}/api/files/77/preview
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Expect: 200 OK with preview_url pointing to previews/{fileId}/.../preview.html
