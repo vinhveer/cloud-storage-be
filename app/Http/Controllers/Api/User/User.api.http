@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=YOUR_TOKEN_HERE
+@token=12|IV7oVe7BA5HFs15B93Mja2SEhYTfBLCqaSzDwjvz0efa38d1
 
 ### Get user profile
 GET {{base}}/api/user
@@ -16,7 +16,7 @@ Authorization: Bearer {{token}}
 Content-Type: {{json}}
 
 {
-  "name": "New Name"
+  "name": "New Name teeeee"
 }
 
 ### Update password
@@ -26,8 +26,8 @@ Authorization: Bearer {{token}}
 Content-Type: {{json}}
 
 {
-  "current_password": "oldpass",
-  "password": "newpass",
-  "password_confirmation": "newpass"
+  "current_password": "12345678",
+  "new_password": "111111",
+  "new_password_confirmation": "111111"
 }
 
