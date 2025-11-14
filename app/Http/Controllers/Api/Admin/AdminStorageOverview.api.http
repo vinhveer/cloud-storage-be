@@ -1,0 +1,59 @@
+### Admin Storage Overview API tests (comprehensive)
+
+@base=http://localhost:8000
+@json=application/json
+@admin_token=4|AW5x6wRrBpVmAYiZUbCmWXTn3kaHSOtdcKaF4hwhf414115a
+@user_token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+
+#################################################################
+# 1) Unauthenticated -> expect 401
+#################################################################
+
+GET {{base}}/api/admin/storage/overview
+Accept: {{json}}
+
+#################################################################
+# 2) Authenticated non-admin -> expect 500
+#################################################################
+
+GET {{base}}/api/admin/storage/overview
+Accept: {{json}}
+Authorization: Bearer {{user_token}}
+
+#################################################################
+# 3) Authenticated admin -> success
+#################################################################
+
+GET {{base}}/api/admin/storage/overview
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+# Expected example shape (ApiResponse wrapper):
+# {
+#   "success": true,
+#   "data": {
+#     "system_overview": {
+#       "total_users": 120,
+#       "total_files": 5300,
+#       "total_storage_used": 20500000000,
+#       "total_storage_limit": 1073741824000,
+#       "formatted": {
+#         "used": "19.08 GB",
+#         "limit": "1 TB"
+#       }
+#     }
+#   },
+#   "error": null,
+#   "meta": null
+# }
+
+#################################################################
+# 4) Edge cases
+# - No users -> total_users = 0
+# - No files -> total_files = 0
+# - storage limits or used values NULL -> treated as 0 in sums
+#################################################################
+
+GET {{base}}/api/admin/storage/overview
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}

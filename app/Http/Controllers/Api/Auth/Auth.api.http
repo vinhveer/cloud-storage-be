@@ -10,10 +10,10 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "name": "Tri",
-  "email": "tritt@gmail.com",
-  "password": "password123",
-  "password_confirmation": "password123",
+  "name": "tandd",
+  "email": "tandd@gmail.com",
+  "password": "12345678",
+  "password_confirmation": "12345678",
   "device_name": "api"
 }
 
@@ -23,8 +23,18 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "test@gmail.com",
-  "password": "password123",
+  "email": "admin@gmail.com",
+  "password": "12345678",
+  "device_name": "api"
+}
+### Login
+POST {{base}}/api/auth/login
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "hunghuy0925@gmail.com",
+  "password": "00000000",
   "device_name": "api"
 }
 
