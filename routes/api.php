@@ -9,7 +9,8 @@ Route::post('/register', [\App\Http\Controllers\Api\Auth\AuthController::class, 
 Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class, 'login']);
 Route::post('/forgot-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'forgot']);
 Route::post('/reset-password', [\App\Http\Controllers\Api\Auth\AuthController::class, 'reset']);
-Route::post('/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify'])->name('api.email.verify');
+// Accept both GET and POST for email verification so users can click the link in email
+Route::match(['get', 'post'], '/email/verify/{id}', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'verify'])->name('api.email.verify');
 Route::post('/email/resend', [\App\Http\Controllers\Api\EmailVerification\EmailVerificationController::class, 'resend']);
 
 Route::middleware('auth:sanctum')->group(function () {

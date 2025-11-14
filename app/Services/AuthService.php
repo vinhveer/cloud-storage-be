@@ -6,10 +6,12 @@ use App\Exceptions\ApiException;
 use App\Models\SystemConfig;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
+use App\Notifications\VerifyEmailApiLink;
 
 class AuthService
 {
-    public function register(string $name, string $email, string $password, ?string $deviceName = null): array
+    public function register(string $name, string $email, string $password, ?string $deviceName = null): User
     {
         if (User::where('email', $email)->exists()) {
             throw new ApiException('Email already taken', 422, 'EMAIL_TAKEN');
@@ -33,9 +35,20 @@ class AuthService
             'storage_used' => 0,
         ]);
 
-        $token = $user->createToken($deviceName ?: 'api')->plainTextToken;
+        // Send verification email immediately after registration
+        try {
+            $verificationUrl = URL::temporarySignedRoute(
+                'api.email.verify',
+                now()->addMinutes(60),
+                ['id' => $user->id]
+            );
 
-        return [$user, $token];
+            $user->notify(new VerifyEmailApiLink($verificationUrl));
+        } catch (\Throwable $e) {
+            // Don't block registration on mail errors; log if needed
+        }
+
+        return $user;
     }
 
     public function login(string $email, string $password, ?string $deviceName = null): array
@@ -43,6 +56,10 @@ class AuthService
         $user = User::where('email', $email)->first();
         if (! $user || ! Hash::check($password, $user->password)) {
             throw new ApiException('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+        }
+
+        if (! $user->email_verified_at) {
+            throw new ApiException('Email not verified', 403, 'EMAIL_NOT_VERIFIED');
         }
 
         $token = $user->createToken($deviceName ?: 'api')->plainTextToken;

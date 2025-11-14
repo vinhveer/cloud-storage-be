@@ -20,7 +20,7 @@ class AuthController extends BaseApiController
 
     public function register(RegisterRequest $request)
     {
-        [$user, $token] = $this->auth->register(
+        $user = $this->auth->register(
             $request->string('name')->toString(),
             $request->string('email')->toString(),
             $request->string('password')->toString(),
@@ -28,8 +28,7 @@ class AuthController extends BaseApiController
         );
 
         return $this->ok([
-            'message' => 'Registered successfully.',
-            'token' => $token,
+            'message' => 'Registered successfully. Please check your email to verify your account.',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -72,13 +71,16 @@ class AuthController extends BaseApiController
     public function logout(Request $request)
     {
         $request->user()?->currentAccessToken()?->delete();
-        return $this->ok(['message' => 'Logged out.']);
+        $response = $this->ok(['message' => 'Logged out.']);
+        // Remove auth_token cookie from browser
+        return $response->withCookie(cookie()->forget('auth_token'));
     }
 
     public function logoutAll(Request $request)
     {
         $request->user()?->tokens()?->delete();
-        return $this->ok(['message' => 'Logged out from all devices.']);
+        $response = $this->ok(['message' => 'Logged out from all devices.']);
+        return $response->withCookie(cookie()->forget('auth_token'));
     }
     
     public function forgot(ForgotPasswordRequest $request)
@@ -105,16 +107,25 @@ class AuthController extends BaseApiController
                 ]);
                 $user->setRememberToken(Str::random(60));
                 $user->save();
+                // Revoke all existing personal access tokens so previous sessions are logged out
+                try {
+                    $user->tokens()?->delete();
+                } catch (\Throwable $e) {
+                    // ignore token deletion errors
+                }
             }
         );
         
         if ($status !== Password::PASSWORD_RESET) {
             return $this->fail('Invalid or expired reset token.', 400, 'INVALID_RESET_TOKEN');
         }
-        
-        return $this->ok([
+
+        $response = $this->ok([
             'message' => 'Password has been reset successfully.',
         ]);
+
+        // Ensure any auth cookie on the client is removed
+        return $response->withCookie(cookie()->forget('auth_token'));
     }
     
 }
