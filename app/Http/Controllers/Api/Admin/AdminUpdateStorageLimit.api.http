@@ -1,0 +1,68 @@
+@base=http://localhost:8000
+@json=application/json
+@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
+@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+PUT {{base}}/api/admin/users/2/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "storage_limit": 21474836480
+}
+
+### 2) Not admin -> expect 403
+PUT {{base}}/api/admin/users/2/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{user_token}}
+
+{
+  "storage_limit": 21474836480
+}
+
+### 3) Validation missing -> expect 422
+PUT {{base}}/api/admin/users/2/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{}
+
+### 4) Invalid value -> expect 422
+PUT {{base}}/api/admin/users/12/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "storage_limit": 21474836480
+}
+
+### 5) User not found -> expect 404
+PUT {{base}}/api/admin/users/999999/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "storage_limit": 21474836480
+}
+
+### 6) Success -> expect 200 and updated user
+PUT {{base}}/api/admin/users/2/storage-limit
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "storage_limit": 21474836480
+}
+
+# Expected response example:
+# {
+#   "success": true,
+#   "message": "Storage limit updated.",
+#   "user": { "user_id": 2, "storage_limit": 21474836480 }
+# }

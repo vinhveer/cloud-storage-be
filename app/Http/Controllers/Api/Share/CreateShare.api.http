@@ -1,0 +1,88 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+POST {{base}}/api/shares
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 57,
+  "user_ids": [8],
+  "permission": "view"
+}
+
+### 2) Validation error - missing fields
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{}
+
+### 3) Invalid shareable_type
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 64,
+  "user_ids": [8],
+  "permission": "edit"
+}
+
+### 4) Non-existing shareable_id
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 999999,
+  "user_ids": [2],
+  "permission": "view"
+}
+
+### 5) Empty recipients
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 1,
+  "user_ids": [],
+  "permission": "view"
+}
+
+### 6) Invalid permission
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 1,
+  "user_ids": [2],
+  "permission": "invalid"
+}
+
+### 7) Successful share (example)
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 19,
+  "user_ids": [8,9],
+  "permission": "edit"
+}

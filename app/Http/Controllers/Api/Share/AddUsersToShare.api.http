@@ -1,0 +1,86 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+POST {{base}}/api/shares/1/users
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "user_ids": [10],
+  "permission": "view"
+}
+
+### 2) Validation missing -> expect 422
+POST {{base}}/api/shares/13/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{}
+
+### 3) Invalid permission -> expect 422
+POST {{base}}/api/shares/13/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "user_ids": [9],
+  "permission": "edit"
+}
+
+### 4) Invalid user ids -> expect 422 (no users added)
+POST {{base}}/api/shares/1/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "user_ids": [999999],
+  "permission": "view"
+}
+
+### 5) Already added -> expect 422 (no users added)
+# Try adding a user that already exists on share id 56
+POST {{base}}/api/shares/56/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "user_ids": [8],
+  "permission": "view"
+}
+
+### 6) Not owner -> expect 404
+# Use a token that is NOT the owner of share id 56
+POST {{base}}/api/shares/56/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "user_ids": [10],
+  "permission": "view"
+}
+
+### 7) Success -> expect 200 and added_users
+# Use a token that is the owner of share id 56
+POST {{base}}/api/shares/56/users
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "user_ids": [10,11],
+  "permission": "view"
+}
+
+# Expected body (example):
+# {
+#   "success": true,
+#   "message": "Users added to share successfully.",
+#   "added_users": [ { "user_id": 10, "name": "Phạm Văn D", "permission": "view" } ]
+# }

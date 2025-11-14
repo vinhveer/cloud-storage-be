@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token = 10|87n0OmYDO843dLeCI32Cyjh1kTavHdDxdlFfhuET5b4d3503
 @parentId = 7
 
 ### Create folder at root (200)

@@ -66,15 +66,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\Folder\FolderController::class, 'move']);
 
     // Shares
-    Route::post('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'store']);
-    Route::get('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'index']);
-    Route::get('/shares/received', [\App\Http\Controllers\Api\Share\ShareController::class, 'received']);
-    Route::get('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'show']);
-    Route::put('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'update']);
-    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'destroy']);
-    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\Share\ShareController::class, 'addUsers']);
-    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'removeUser']);
-    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'updateUserPermission']);
+    Route::post('/shares', [\App\Http\Controllers\Api\Share\CreateShareController::class, 'store']);
+    Route::get('/shares', [\App\Http\Controllers\Api\Share\ListSharesController::class, 'index']);
+    Route::get('/shares/received', [\App\Http\Controllers\Api\Share\ReceivedSharesController::class, 'index']);
+    Route::get('/shares/{id}', [\App\Http\Controllers\Api\Share\GetShareController::class, 'show']);
+    Route::put('/shares/{id}', [\App\Http\Controllers\Api\Share\UpdateSharePermissionController::class, 'update']);
+    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\Share\DeleteShareController::class, 'destroy']);
+    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\Share\AddUsersToShareController::class, 'store']);
+    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\RemoveUserFromShareController::class, 'destroy']);
+    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\UpdateUserPermissionController::class, 'update']);
 
     // Storage
     Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageBreakdownController::class, 'breakdown']);
@@ -137,14 +137,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum', 'can:admin']) // TODO: replace with actual admin gate
     ->prefix('admin')
     ->group(function () {
-        Route::get('/users', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'index']);
-        Route::get('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'show']);
-        Route::post('/users', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'store']);
-        Route::put('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'update']);
-        Route::delete('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'destroy']);
-        Route::put('/users/{id}/storage-limit', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'updateStorageLimit']);
-        Route::get('/users/{id}/storage-usage', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'storageUsage']);
-        Route::put('/users/{id}/role', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'updateRole']);
+        Route::get('/users', [\App\Http\Controllers\Api\Admin\AdminUsersListController::class, 'index']);
+        Route::get('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserDetailController::class, 'show']);
+        Route::post('/users', [\App\Http\Controllers\Api\Admin\CreateUserController::class, 'store']);
+        Route::put('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUpdateUserController::class, 'update']);
+        Route::delete('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminDeleteUserController::class, 'destroy']);
+        Route::put('/users/{id}/storage-limit', [\App\Http\Controllers\Api\Admin\AdminUpdateStorageLimitController::class, 'update']);
+        Route::get('/users/{id}/storage-usage', [\App\Http\Controllers\Api\Admin\AdminStorageUsageController::class, 'show']);
+        Route::put('/users/{id}/role', [\App\Http\Controllers\Api\Admin\UpdateUserRoleController::class, 'update']);
 
         // Storage
         Route::get('/storage/overview', [\App\Http\Controllers\Api\Admin\AdminStorageController::class, 'overview']);

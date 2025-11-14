@@ -1,0 +1,33 @@
+@base=http://localhost:8000
+@json=application/json
+@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
+@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+DELETE {{base}}/api/admin/users/2
+Accept: {{json}}
+
+### 2) Not admin -> expect 403
+DELETE {{base}}/api/admin/users/2
+Accept: {{json}}
+Authorization: Bearer {{user_token}}
+
+### 3) Cannot delete self -> expect 422
+# Use admin token and set id equal to admin user id
+DELETE {{base}}/api/admin/users/11
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 4) User not found -> expect 404
+DELETE {{base}}/api/admin/users/999999
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 5) Success -> expect 200
+# Use admin token and a valid target user id (replace id if needed)
+DELETE {{base}}/api/admin/users/2
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+# Expected response:
+# { "success": true, "message": "User deleted successfully." }

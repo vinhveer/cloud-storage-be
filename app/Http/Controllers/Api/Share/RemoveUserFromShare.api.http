@@ -1,0 +1,36 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+DELETE {{base}}/api/shares/1/users/10
+Accept: {{json}}
+
+### 2) Share not found -> expect 404
+DELETE {{base}}/api/shares/13/users/9
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 3) Not owner -> expect 404
+# Use a token that is NOT the owner of share id 56
+DELETE {{base}}/api/shares/56/users/10
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 4) User not part of share -> expect 404
+# Try removing a user id that isn't a recipient on share id 56
+DELETE {{base}}/api/shares/56/users/999999
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 5) Success -> expect 200
+# Use a token that is the owner of share id 56 and remove a user id that is a recipient
+DELETE {{base}}/api/shares/56/users/8
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+# Expected body:
+# {
+#   "success": true,
+#   "message": "User removed from share."
+# }
