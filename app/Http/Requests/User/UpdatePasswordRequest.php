@@ -6,6 +6,7 @@ use App\Http\Requests\BaseFormRequest;
 
 class UpdatePasswordRequest extends BaseFormRequest
 {
+    
     public function rules(): array
     {
         return [

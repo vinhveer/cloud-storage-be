@@ -24,7 +24,7 @@ Content-Type: {{json}}
 
 {
   "email": "tritt666666@gmail.com",
-  "password": "12345678",
+  "password": "111111",
   "device_name": "api"
 }
 ### Login
