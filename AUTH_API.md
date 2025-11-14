@@ -62,6 +62,18 @@
   - Nếu user không auto-login, frontend gọi `POST /api/login` và lưu token (nếu dùng token) hoặc rely on cookie.
   - Nếu dùng cookie-based flow, frontend **không cần** lưu token; chỉ gọi API với `withCredentials: true`.
 
+  - Nếu email của user chưa được xác thực: backend trả lỗi 403 với mã lỗi `EMAIL_NOT_VERIFIED`.
+    - Frontend nên bắt lỗi này và hiển thị một trang/khung (verify UI) cho phép người dùng:
+      - Thấy thông báo rõ ràng là email chưa được xác thực và hướng dẫn kiểm tra hộp thư.
+      - Nhấn nút `Resend verification email` → gọi `POST /api/email/resend` với `{ email }`.
+      - Nếu cần, cho phép nhập lại email để gửi lại link xác thực.
+    - UI này giúp người dùng hoàn tất bước verify mà không cần gọi lại flow đăng ký.
+    - Ví dụ flow ngắn:
+      1. Người dùng submit login → nhận 403 + `EMAIL_NOT_VERIFIED`.
+      2. Frontend show `Please verify your email` page với nút `Resend`.
+      3. Khi người dùng click `Resend`, gọi `POST /api/email/resend` và show thông báo thành công.
+      4. Sau khi người dùng click link trong mail và backend redirect (auto-login), frontend sẽ gọi `GET /api/user` để load profile.
+
 4) Logout
   - Gọi `POST /api/auth/logout` (kèm cookie). Server sẽ delete token và trả Set-Cookie để remove cookie.
 
