@@ -1,0 +1,39 @@
+@base=http://localhost:8000
+@json=application/json
+@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
+@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+GET {{base}}/api/admin/users
+Accept: {{json}}
+
+### 2) Not admin -> expect 403
+GET {{base}}/api/admin/users
+Accept: {{json}}
+Authorization: Bearer {{user_token}}
+
+### 3) Admin - basic list
+GET {{base}}/api/admin/users
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 4) Search by name/email
+GET {{base}}/api/admin/users?search=admin
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 5) Pagination - per_page=1
+GET {{base}}/api/admin/users?per_page=1
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 6) Page 2
+GET {{base}}/api/admin/users?page=2&per_page=1
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}
+
+### 7) Expect format
+# Check returned items contain user_id, name, email, role, storage_limit, storage_used
+GET {{base}}/api/admin/users
+Accept: {{json}}
+Authorization: Bearer {{admin_token}}

@@ -135,14 +135,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum', 'can:admin']) // TODO: replace with actual admin gate
     ->prefix('admin')
     ->group(function () {
-        Route::get('/users', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'index']);
-        Route::get('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'show']);
-        Route::post('/users', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'store']);
-        Route::put('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'update']);
-        Route::delete('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'destroy']);
-        Route::put('/users/{id}/storage-limit', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'updateStorageLimit']);
-        Route::get('/users/{id}/storage-usage', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'storageUsage']);
-        Route::put('/users/{id}/role', [\App\Http\Controllers\Api\Admin\AdminUserController::class, 'updateRole']);
+        Route::get('/users', [\App\Http\Controllers\Api\Admin\AdminUsersListController::class, 'index']);
+        Route::get('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserDetailController::class, 'show']);
+        Route::post('/users', [\App\Http\Controllers\Api\Admin\CreateUserController::class, 'store']);
+        Route::put('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUpdateUserController::class, 'update']);
+        Route::delete('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminDeleteUserController::class, 'destroy']);
+        Route::put('/users/{id}/storage-limit', [\App\Http\Controllers\Api\Admin\AdminUpdateStorageLimitController::class, 'update']);
+        Route::get('/users/{id}/storage-usage', [\App\Http\Controllers\Api\Admin\AdminStorageUsageController::class, 'show']);
+        Route::put('/users/{id}/role', [\App\Http\Controllers\Api\Admin\UpdateUserRoleController::class, 'update']);
 
         // Storage
         Route::get('/storage/overview', [\App\Http\Controllers\Api\Admin\AdminStorageController::class, 'overview']);

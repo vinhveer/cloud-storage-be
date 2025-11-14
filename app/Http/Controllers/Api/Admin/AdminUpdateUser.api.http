@@ -1,0 +1,72 @@
+@base=http://localhost:8000
+@json=application/json
+@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
+@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+PUT {{base}}/api/admin/users/2
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "name": "Updated Name"
+}
+
+### 2) Not admin -> expect 403
+PUT {{base}}/api/admin/users/2
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{user_token}}
+
+{
+  "name": "Updated Name"
+}
+
+### 3) Validation invalid email -> expect 422
+PUT {{base}}/api/admin/users/11
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+    "name": "Tan Updated",
+  "email": "tan2@gmail.com"
+}
+
+### 4) Duplicate email -> expect 422
+# Attempt to set email to one that already exists
+PUT {{base}}/api/admin/users/2
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "email": "existing@example.com"
+}
+
+### 5) User not found -> expect 404
+PUT {{base}}/api/admin/users/999999
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Updated Name"
+}
+
+### 6) Success - update name + storage_limit
+PUT {{base}}/api/admin/users/2
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Updated Name",
+  "storage_limit": 10737418240
+}
+
+# Expected response example:
+# {
+#   "success": true,
+#   "user": { "user_id": 2, "name": "Updated Name", "email": "user@gmail.com", "role": "user", "storage_limit": 10737418240, "storage_used": 524288000 }
+# }

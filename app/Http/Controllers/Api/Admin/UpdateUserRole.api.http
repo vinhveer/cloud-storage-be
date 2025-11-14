@@ -1,0 +1,79 @@
+@base=http://localhost:8000
+@json=application/json
+@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
+@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+PUT {{base}}/api/admin/users/2/role
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "role": "admin"
+}
+
+### 2) Not admin -> expect 403
+PUT {{base}}/api/admin/users/2/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{user_token}}
+
+{
+  "role": "admin"
+}
+
+### 3) Validation missing -> expect 422
+PUT {{base}}/api/admin/users/7/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{}
+
+### 4) Invalid role -> expect 422
+PUT {{base}}/api/admin/users/2/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "role": "owner"
+}
+
+### 5) User not found -> expect 404
+PUT {{base}}/api/admin/users/999999/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "role": "admin"
+}
+
+### 6) Self-demotion -> expect 422
+# Using admin_token, attempt to change own role to 'user' (if admin id=1)
+PUT {{base}}/api/admin/users/1/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "role": "user"
+}
+
+### 7) Success -> expect 200 and updated user
+PUT {{base}}/api/admin/users/7/role
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{admin_token}}
+
+{
+  "role": "admin"
+}
+
+# Expected response example:
+# {
+#   "success": true,
+#   "message": "Role updated successfully.",
+#   "user": { "user_id": 2, "role": "admin" }
+# }
