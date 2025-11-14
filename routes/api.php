@@ -64,15 +64,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/folders/{id}/move', [\App\Http\Controllers\Api\Folder\FolderController::class, 'move']);
 
     // Shares
-    Route::post('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'store']);
-    Route::get('/shares', [\App\Http\Controllers\Api\Share\ShareController::class, 'index']);
-    Route::get('/shares/received', [\App\Http\Controllers\Api\Share\ShareController::class, 'received']);
-    Route::get('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'show']);
-    Route::put('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'update']);
-    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\Share\ShareController::class, 'destroy']);
-    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\Share\ShareController::class, 'addUsers']);
-    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'removeUser']);
-    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\ShareController::class, 'updateUserPermission']);
+    Route::post('/shares', [\App\Http\Controllers\Api\Share\CreateShareController::class, 'store']);
+    Route::get('/shares', [\App\Http\Controllers\Api\Share\ListSharesController::class, 'index']);
+    Route::get('/shares/received', [\App\Http\Controllers\Api\Share\ReceivedSharesController::class, 'index']);
+    Route::get('/shares/{id}', [\App\Http\Controllers\Api\Share\GetShareController::class, 'show']);
+    Route::put('/shares/{id}', [\App\Http\Controllers\Api\Share\UpdateSharePermissionController::class, 'update']);
+    Route::delete('/shares/{id}', [\App\Http\Controllers\Api\Share\DeleteShareController::class, 'destroy']);
+    Route::post('/shares/{id}/users', [\App\Http\Controllers\Api\Share\AddUsersToShareController::class, 'store']);
+    Route::delete('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\RemoveUserFromShareController::class, 'destroy']);
+    Route::put('/shares/{id}/users/{userId}', [\App\Http\Controllers\Api\Share\UpdateUserPermissionController::class, 'update']);
 
     // Storage
     Route::get('/storage/breakdown', [\App\Http\Controllers\Api\Storage\StorageBreakdownController::class, 'breakdown']);

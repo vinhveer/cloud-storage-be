@@ -10,8 +10,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "name": "tandd",
-  "email": "tandd@gmail.com",
+  "name": "tan",
+  "email": "tan@gmail.com",
   "password": "12345678",
   "password_confirmation": "12345678",
   "device_name": "api"
@@ -23,7 +23,7 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "admin@gmail.com",
+  "email": "tandd@gmail.com",
   "password": "12345678",
   "device_name": "api"
 }

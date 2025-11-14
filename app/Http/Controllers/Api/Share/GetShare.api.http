@@ -1,0 +1,25 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+GET {{base}}/api/shares/1
+Accept: {{json}}
+
+### 2) Authenticated - not owner -> expect 404
+# Use a token that is NOT the owner of share id 1
+GET {{base}}/api/shares/9
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 3) Authenticated - owner -> expect 200 and full payload
+# Replace the id in URL with a share id owned by the token user
+GET {{base}}/api/shares/56
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 4) Expect response fields
+# Verify returned object contains all fields: share_id, shareable_type, shareable_name, permission, created_at, shared_by, shared_with
+GET {{base}}/api/shares/56
+Accept: {{json}}
+Authorization: Bearer {{token}}

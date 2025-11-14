@@ -1,0 +1,70 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+PUT {{base}}/api/shares/1/users/9
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "permission": "edit"
+}
+
+### 2) Validation missing -> expect 422
+PUT {{base}}/api/shares/1/users/9
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{}
+
+### 3) Invalid permission -> expect 422
+PUT {{base}}/api/shares/13/users/8
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "permission": "edit"
+}
+
+### 4) Share not found -> expect 404
+PUT {{base}}/api/shares/999999/users/9
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "permission": "edit"
+}
+
+### 5) User not part of share -> expect 404
+# Try updating permission for user not on share id 56
+PUT {{base}}/api/shares/56/users/8
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "permission": "edit"
+}
+
+### 6) Not owner -> expect 404
+# Use a token that is NOT the owner of share id 56
+PUT {{base}}/api/shares/56/users/9
+Accept: {{json}}
+Content-Type: {{json}}
+Authorization: Bearer {{token}}
+
+{
+  "permission": "edit"
+}
+
+
+# Expected body (example):
+# {
+#   "success": true,
+#   "message": "User permission updated successfully.",
+#   "user": { "user_id": 9, "permission": "edit" }
+# }

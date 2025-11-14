@@ -1,0 +1,28 @@
+@base=http://localhost:8000
+@json=application/json
+@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+
+### 1) Unauthenticated -> expect 401
+GET {{base}}/api/shares
+Accept: {{json}}
+
+### 2) Authenticated - basic list
+GET {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 3) Pagination - per_page=1
+GET {{base}}/api/shares?per_page=1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 4) Page 2
+GET {{base}}/api/shares?page=2&per_page=1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 5) Expect format
+# Check returned items contain share_id, shareable_type, shareable_name, permission, shared_with_count, created_at
+GET {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
