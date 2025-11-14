@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token =11|4zp6Oscd6pMEqZe1p8lvCgVHZ5eAUwz0z9RhZpGF1981a53c
+@token =12|IV7oVe7BA5HFs15B93Mja2SEhYTfBLCqaSzDwjvz0efa38d1
 
 ### 1) Upload file - success (root folder) — expects 201 Created
 POST {{baseUrl}}/api/files

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseApiController;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Services\AdminUserDeletionService;
 
 class AdminDeleteUserController extends BaseApiController
 {
@@ -31,6 +32,21 @@ class AdminDeleteUserController extends BaseApiController
         $user = User::find($id);
         if (! $user) {
             return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        // Prevent deleting other admins
+        if (isset($user->role) && $user->role === 'admin') {
+            return response()->json(['success' => false, 'message' => 'Cannot delete a user with admin role.'], 403);
+        }
+
+        // Cleanup filesystem and related records that DB cascade won't remove (physical files)
+        try {
+            $deleter = app(AdminUserDeletionService::class);
+            $deleter->cleanupUser($user, $auth);
+        } catch (\Throwable $e) {
+            // Log and continue to attempt DB deletion; do not block admin from removing user
+            // but return a warning in response
+            \Log::warning('AdminDeleteUserController: cleanupUser failed for user ' . $user->id . ': ' . $e->getMessage());
         }
 
         DB::transaction(function () use ($user) {

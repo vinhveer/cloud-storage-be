@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\SystemConfig;
 
 class CreateUserController extends BaseApiController
 {
@@ -47,10 +48,14 @@ class CreateUserController extends BaseApiController
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
+            'storage_used' => 0,
         ];
 
         if (array_key_exists('storage_limit', $data)) {
             $newUserData['storage_limit'] = $data['storage_limit'];
+        } else {
+            // Use the system default storage limit (in bytes)
+            $newUserData['storage_limit'] = SystemConfig::getBytes('default_storage_limit', 0);
         }
 
         $newUser = User::create($newUserData);
@@ -62,7 +67,8 @@ class CreateUserController extends BaseApiController
                 'name' => $newUser->name,
                 'email' => $newUser->email,
                 'role' => $newUser->role,
-                'storage_limit' => $newUser->storage_limit !== null ? (int) $newUser->storage_limit : null,
+                'storage_limit' => $newUser->storage_limit !== null ? (int) $newUser->storage_limit : 0,
+                'storage_used' => $newUser->storage_used !== null ? (int) $newUser->storage_used : 0,
             ],
         ], 201);
     }

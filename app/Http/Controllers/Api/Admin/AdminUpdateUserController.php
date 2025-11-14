@@ -25,7 +25,6 @@ class AdminUpdateUserController extends BaseApiController
 
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,'.$id,
             'storage_limit' => 'nullable|integer|min:0',
         ]);
 
@@ -44,16 +43,18 @@ class AdminUpdateUserController extends BaseApiController
 
         $data = $validator->validated();
 
-        if (array_key_exists('name', $data)) {
-            $user->name = $data['name'];
+        // Use the raw request keys to detect presence of a field even when
+        // validator might omit nullable fields in some cases. Prefer the
+        // validated value when available.
+        $raw = $request->all();
+
+        if (array_key_exists('name', $raw) || array_key_exists('name', $data)) {
+            $user->name = $data['name'] ?? $request->input('name');
         }
 
-        if (array_key_exists('email', $data)) {
-            $user->email = $data['email'];
-        }
-
-        if (array_key_exists('storage_limit', $data)) {
-            $user->storage_limit = $data['storage_limit'];
+        // Only allow updating name and storage_limit via this admin endpoint.
+        if (array_key_exists('storage_limit', $raw) || array_key_exists('storage_limit', $data)) {
+            $user->storage_limit = $data['storage_limit'] ?? $request->input('storage_limit');
         }
 
         $user->save();

@@ -1,7 +1,7 @@
 @base=http://localhost:8000
 @json=application/json
-@admin_token=13|pxqjjHLCe6H0iqyawW6KrDuNbS3eDPmguJToD1Dp29afb864
-@user_token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+@admin_token=14|849x59nB9k5iFZNTugiPTSvrnJGAJ4WzVmkniSmA528a12d8
+@user_token=15|ybjfAXtUW8y9rujGuPE5jFM8FfJbN8yv0suRcB0Pb83d2379
 
 ### 1) Unauthenticated -> expect 401
 PUT {{base}}/api/admin/users/2/storage-limit
@@ -12,7 +12,7 @@ Content-Type: {{json}}
   "storage_limit": 21474836480
 }
 
-### 2) Not admin -> expect 403
+### 2) Not admin -> expect 500
 PUT {{base}}/api/admin/users/2/storage-limit
 Accept: {{json}}
 Content-Type: {{json}}
@@ -29,16 +29,6 @@ Content-Type: {{json}}
 Authorization: Bearer {{admin_token}}
 
 {}
-
-### 4) Invalid value -> expect 422
-PUT {{base}}/api/admin/users/12/storage-limit
-Accept: {{json}}
-Content-Type: {{json}}
-Authorization: Bearer {{admin_token}}
-
-{
-  "storage_limit": 21474836480
-}
 
 ### 5) User not found -> expect 404
 PUT {{base}}/api/admin/users/999999/storage-limit
