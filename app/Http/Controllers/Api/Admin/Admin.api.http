@@ -47,7 +47,28 @@ Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### Admin dashboard
+### 13.1. Tổng quan hệ thống (Admin)
 GET {{base}}/api/admin/dashboard
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 13.2. Thống kê người dùng
+GET {{base}}/api/admin/stats/users
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 13.3. Thống kê files
+GET {{base}}/api/admin/stats/files
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 13.4. Thống kê dung lượng
+GET {{base}}/api/admin/stats/storage
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 13.5. Hoạt động hệ thống
+GET {{base}}/api/admin/stats/activity?page=1&per_page=10
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

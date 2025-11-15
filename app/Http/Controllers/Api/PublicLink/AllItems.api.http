@@ -1,0 +1,31 @@
+### All items viewer (files & folders)
+
+@baseUrl=http://localhost:8000
+@json=application/json
+@token=16|R8BmJs9oeiWaQBTncG0Bgq4yW634nFxxwHnngjwH593e3b31
+
+### List files (increase per_page to fetch more)
+GET {{baseUrl}}/api/files?per_page=100&page=1
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+@fileId=45
+
+### List folders tree (all folders non-deleted)
+GET {{baseUrl}}/api/folders/tree
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+@folderId=7
+
+### File details (full attributes)
+GET {{baseUrl}}/api/files/{{fileId}}
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Folder details (full attributes)
+GET {{baseUrl}}/api/folders/{{folderId}}
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+
