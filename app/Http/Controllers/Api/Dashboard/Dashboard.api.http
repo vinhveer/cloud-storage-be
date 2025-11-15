@@ -3,7 +3,8 @@
 @base=http://localhost:8000
 @json=application/json
 # @token=YOUR_TOKEN_HERE
-@token= 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
+# @token= 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
+@token= 16|R8BmJs9oeiWaQBTncG0Bgq4yW634nFxxwHnngjwH593e3b31
 
 ### Get dashboard overview
 # Lấy tổng quan dashboard

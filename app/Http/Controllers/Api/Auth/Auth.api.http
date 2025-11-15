@@ -38,6 +38,17 @@ Content-Type: {{json}}
   "device_name": "api"
 }
 
+### Login
+POST {{base}}/api/auth/login
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "lamlam010205@gmail.com",
+  "password": "00000000",
+  "device_name": "api"
+}
+
 ### Me (requires token)
 GET {{base}}/api/auth/me
 Accept: {{json}}

@@ -16,3 +16,11 @@ Content-Type: {{json}}
   "email": "tritt666666@gmail.com"
 }
 
+### Resend verification email
+POST {{base}}/api/email/resend
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "email": "hunghuy0925@gmail.com"
+}

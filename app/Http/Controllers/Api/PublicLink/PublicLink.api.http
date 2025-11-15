@@ -1,0 +1,90 @@
+### PublicLink HTTP tests
+
+@baseUrl=http://localhost:8000
+@json=application/json
+@token=16|R8BmJs9oeiWaQBTncG0Bgq4yW634nFxxwHnngjwH593e3b31
+
+@fileId=45
+@folderId=7
+
+# Link created in the previous request
+@linkId=43
+@linkToken=UrEnaiQypcpDIXthiF8o4ngr3NDHYsfSvmbxDJHS
+
+### 8.1. Create public link (file)
+POST {{baseUrl}}/api/public-links
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": "{{fileId}}",
+  "permission": "download",
+  "expired_at": null
+}
+
+
+### 8.1. Create public link (folder)
+POST {{baseUrl}}/api/public-links
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "folder",
+  "shareable_id": "{{folderId}}",
+  "permission": "view",
+  "expired_at": null
+}
+
+
+### 8.2. List my public links
+GET {{baseUrl}}/api/public-links?page=1&per_page=20
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+
+### 8.3. Lấy thông tin chi tiết của public link
+GET {{baseUrl}}/api/public-links/{{linkToken}}
+Accept: {{json}}
+
+
+### 8.4. Xóa hoặc thu hồi public link
+DELETE {{baseUrl}}/api/public-links/{{linkId}}
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+
+### 8.5. Update public link
+PUT {{baseUrl}}/api/public-links/44
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "permission": "view",
+  "expired_at": "2030-11-01T00:00:00Z"
+}
+
+
+### 8.6. Preview via token
+GET {{baseUrl}}/api/public-links/3zdkyC3neBslxYuB9HLyev43EpdGkCdcbWO9WkJi/preview
+Accept: {{json}}
+
+
+### 8.7. Download via token (JSON containing download_url)
+GET {{baseUrl}}/api/public-links/WJjmB4rFhJomZ1ntrfHNhEuyx2Wws8axixf5i6cG/download
+Accept: {{json}}
+
+
+### 8.8. Revoke via POST
+POST {{baseUrl}}/api/public-links/52/revoke
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+
+### 8.9. List public links for file
+GET {{baseUrl}}/api/files/{{fileId}}/public-links
+Accept: {{json}}
+Authorization: Bearer {{token}}
