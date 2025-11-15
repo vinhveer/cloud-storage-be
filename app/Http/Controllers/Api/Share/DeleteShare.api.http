@@ -1,6 +1,6 @@
 @base=http://localhost:8000
 @json=application/json
-@token=10|87n0OmYDO843dLeCI32Cyjh1kTavHdDxdlFfhuET5b4d3503
+@token= 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 DELETE {{base}}/api/shares/1
@@ -11,15 +11,9 @@ DELETE {{base}}/api/shares/9
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
-### 3) Not owner -> expect 404
-# Use a token that is NOT the owner of share id 1
-DELETE {{base}}/api/shares/1
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
 ### 4) Success -> expect 200
 # Use a token that is the owner of the share (replace id if needed)
-DELETE {{base}}/api/shares/56
+DELETE {{base}}/api/shares/2
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

@@ -1,6 +1,6 @@
 @base=http://localhost:8000
 @json=application/json
-@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+@token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 GET {{base}}/api/shares/received
@@ -22,8 +22,8 @@ GET {{base}}/api/shares/received?per_page=1
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
-### 5) Page 2
-GET {{base}}/api/shares/received?page=2&per_page=1
+### 5) Pagination - Page 1
+GET {{base}}/api/shares/received?page=1&per_page=1
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

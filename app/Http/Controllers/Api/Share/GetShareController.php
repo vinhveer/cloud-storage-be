@@ -22,7 +22,7 @@ class GetShareController extends BaseApiController
             ->leftJoin('files as f', 'sh.file_id', '=', 'f.id')
             ->leftJoin('folders as fo', 'sh.folder_id', '=', 'fo.id')
             ->where('sh.id', $id)
-            ->selectRaw('sh.id as share_id, sh.shareable_type, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.permission, sh.created_at, sh.user_id as shared_by_user_id')
+            ->selectRaw('sh.id as share_id, sh.shareable_type, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.created_at, sh.user_id as shared_by_user_id')
             ->first();
 
         if (! $share) {
@@ -54,7 +54,7 @@ class GetShareController extends BaseApiController
             'share_id' => (int) $share->share_id,
             'shareable_type' => $share->shareable_type,
             'shareable_name' => $share->shareable_name,
-            'permission' => $share->permission,
+            // share.permission deprecated: per-recipient permissions are available in 'shared_with'
             'created_at' => $share->created_at,
             'shared_by' => [
                 'user_id' => (int) $sharedBy->id,

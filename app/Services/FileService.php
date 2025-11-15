@@ -226,10 +226,16 @@ class FileService
 		$mime = $uploadedFile->getClientMimeType();
 		$ext = $uploadedFile->getClientOriginalExtension();
 
-		// Check user storage quota
+		// Determine owner of the file — storage accounting and quota belong to the owner
+		$owner = $file->user ?? $file->user()->first();
+		if (! $owner) {
+			throw new \App\Exceptions\DomainValidationException('File owner not found');
+		}
+
+		// Check owner's storage quota
 		$systemDefaultLimit = (int) SystemConfig::getBytes('default_storage_limit', 0);
-		$limit = (int) ($user->storage_limit ?: $systemDefaultLimit);
-		$used = (int) ($user->storage_used ?? 0);
+		$limit = (int) ($owner->storage_limit ?: $systemDefaultLimit);
+		$used = (int) ($owner->storage_used ?? 0);
 		if ($limit > 0 && ($used + $size) > $limit) {
 			throw new \App\Exceptions\DomainValidationException('Storage limit exceeded');
 		}
@@ -270,8 +276,8 @@ class FileService
 			$file->file_extension = $ext;
 			$file->save();
 
-			// Update user's storage usage
-			$user->increment('storage_used', $size);
+			// Update owner's storage usage (actor may be an editor)
+			$owner->increment('storage_used', $size);
 
 			return $version->fresh();
 		});

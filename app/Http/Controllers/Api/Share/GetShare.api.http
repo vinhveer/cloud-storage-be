@@ -1,6 +1,6 @@
 @base=http://localhost:8000
 @json=application/json
-@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+@token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 GET {{base}}/api/shares/1
@@ -14,7 +14,7 @@ Authorization: Bearer {{token}}
 
 ### 3) Authenticated - owner -> expect 200 and full payload
 # Replace the id in URL with a share id owned by the token user
-GET {{base}}/api/shares/56
+GET {{base}}/api/shares/1
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

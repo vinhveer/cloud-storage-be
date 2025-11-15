@@ -97,10 +97,14 @@ class FileVersionService
         $mime = $old->mime_type;
         $ext = $old->file_extension;
 
-        // Check user storage quota (restoring creates a new physical copy)
+        // Storage accounting belongs to the file owner — check owner's quota
+        $owner = $file->user ?? $file->user()->first();
+        if (! $owner) {
+            throw new DomainValidationException('File owner not found');
+        }
         $systemDefaultLimit = (int) SystemConfig::getBytes('default_storage_limit', 0);
-        $limit = (int) ($user->storage_limit ?: $systemDefaultLimit);
-        $used = (int) ($user->storage_used ?? 0);
+        $limit = (int) ($owner->storage_limit ?: $systemDefaultLimit);
+        $used = (int) ($owner->storage_used ?? 0);
         if ($limit > 0 && ($used + $size) > $limit) {
             throw new DomainValidationException('Storage limit exceeded');
         }
@@ -145,9 +149,8 @@ class FileVersionService
             $file->file_extension = $ext;
             $file->save();
 
-            // Update user's storage accounting
-            $user->storage_used = $used + $size;
-            $user->save();
+            // Update owner's storage accounting (actor may be an editor)
+            $owner->increment('storage_used', $size);
 
             DB::commit();
 

@@ -14,7 +14,6 @@ return new class extends Migration
             $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('shareable_type', ['file', 'folder']);
-            $table->enum('permission', ['view', 'download', 'edit']);
             $table->timestamps();
 
             $table->index('user_id');

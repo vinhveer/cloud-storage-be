@@ -29,9 +29,9 @@ class ListSharesController extends BaseApiController
             ->leftJoin('receives_shares as rs', 'rs.share_id', '=', 'sh.id')
             ->where('sh.user_id', $user->id)
             ->selectRaw(
-                'sh.id as share_id, sh.shareable_type, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.permission, sh.created_at, COUNT(DISTINCT rs.user_id) as shared_with_count'
+                'sh.id as share_id, sh.shareable_type, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.created_at, COUNT(DISTINCT rs.user_id) as shared_with_count'
             )
-            ->groupBy('sh.id', 'sh.shareable_type', 'shareable_name', 'sh.permission', 'sh.created_at');
+            ->groupBy('sh.id', 'sh.shareable_type', 'shareable_name', 'sh.created_at');
 
         $total = (int) DB::table(DB::raw("({$baseQB->toSql()}) as t"))
             ->mergeBindings($baseQB)
@@ -47,7 +47,7 @@ class ListSharesController extends BaseApiController
                 'share_id' => (int) $r->share_id,
                 'shareable_type' => $r->shareable_type,
                 'shareable_name' => $r->shareable_name,
-                'permission' => $r->permission,
+                // share.permission removed: use per-recipient permissions when needed
                 'shared_with_count' => (int) $r->shared_with_count,
                 'created_at' => $r->created_at,
             ];

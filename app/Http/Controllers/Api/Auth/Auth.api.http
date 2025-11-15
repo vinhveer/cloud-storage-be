@@ -23,8 +23,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "admin@gmail.com",
-  "password": "12345678",
+  "email": "stoltenberg.cicero@gmail.com",
+  "password": "password",
   "device_name": "api"
 }
 ### Login

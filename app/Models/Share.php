@@ -10,7 +10,7 @@ class Share extends Model
     use HasFactory;
 
     protected $fillable = [
-        'file_id', 'folder_id', 'user_id', 'shareable_type', 'permission'
+        'file_id', 'folder_id', 'user_id', 'shareable_type'
     ];
 
     protected $hidden = [];

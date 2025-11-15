@@ -1,8 +1,8 @@
 @base=http://localhost:8000
 @json=application/json
-@token=12|P6QIBx6SP1nfeSDQCy6nLgrVfzpiZeS5jBucAGXL48a8d1f3
+@token=23|InCcMpzHvpzy7nr0NdfixOaSPxuPNjdSlJdpwm5l292b78e2
 
-### 1) Unauthenticated -> expect 401
+### 1) Unauthenticated — expect 401
 POST {{base}}/api/shares
 Accept: {{json}}
 Content-Type: {{json}}
@@ -14,7 +14,7 @@ Content-Type: {{json}}
   "permission": "view"
 }
 
-### 2) Validation error - missing fields
+### 2) Validation error — missing fields (expect 422)
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
@@ -22,20 +22,20 @@ Content-Type: {{json}}
 
 {}
 
-### 3) Invalid shareable_type
+### 3) Invalid shareable_type — expect 422
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
 Content-Type: {{json}}
 
 {
-  "shareable_type": "file",
+  "shareable_type": "invalid_type",
   "shareable_id": 64,
   "user_ids": [8],
   "permission": "edit"
 }
 
-### 4) Non-existing shareable_id
+### 4) Non-existing shareable_id — expect 404
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
@@ -48,7 +48,7 @@ Content-Type: {{json}}
   "permission": "view"
 }
 
-### 5) Empty recipients
+### 5) Empty recipients — expect 422
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
@@ -61,7 +61,7 @@ Content-Type: {{json}}
   "permission": "view"
 }
 
-### 6) Invalid permission
+### 6) Invalid permission — expect 422
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
@@ -74,7 +74,7 @@ Content-Type: {{json}}
   "permission": "invalid"
 }
 
-### 7) Successful share (example)
+### 7) Successful share — create new share (expect share_created = true, added_user_ids includes recipients)
 POST {{base}}/api/shares
 Accept: {{json}}
 Authorization: Bearer {{token}}
@@ -82,7 +82,47 @@ Content-Type: {{json}}
 
 {
   "shareable_type": "file",
-  "shareable_id": 19,
-  "user_ids": [8,9],
+  "shareable_id": 58,
+  "user_ids": [15, 8],
   "permission": "edit"
 }
+
+### 8) Re-share same permission — expect share_created = false, added_user_ids empty for existing recipients, skipped_user_ids list existing ones
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 58,
+  "user_ids": [15, 8],
+  "permission": "edit"
+}
+
+### 9) Re-share with changed permission — expect updated_user_ids to include recipients whose permission changed
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 58,
+  "user_ids": [15, 8],
+  "permission": "view"
+}
+
+### 10) Add new and existing users — expect added_user_ids and skipped/updated as appropriate
+POST {{base}}/api/shares
+Accept: {{json}}
+Authorization: Bearer {{token}}
+Content-Type: {{json}}
+
+{
+  "shareable_type": "file",
+  "shareable_id": 58,
+  "user_ids": [15, 8, 2],
+  "permission": "view"
+}
+

@@ -62,28 +62,74 @@ class CreateShareController extends BaseApiController
             return $this->fail('Some recipients do not exist', 422, 'INVALID_RECIPIENTS', array_values($invalidRecipients));
         }
 
+        $shareCreated = false;
+        $addedUserIds = [];
+        $updatedUserIds = [];
+        $skippedUserIds = [];
+
         DB::beginTransaction();
         try {
-            $share = new Share();
-            $share->shareable_type = $shareableType;
-            $share->permission = $permission;
-            $share->user_id = $user->id; // owner
+            // reuse existing share for same owner + shareable if present
+            $shareQuery = Share::where('user_id', $user->id);
             if ($shareableType === 'file') {
-                $share->file_id = $shareableId;
+                $shareQuery->where('file_id', $shareableId);
             } else {
-                $share->folder_id = $shareableId;
+                $shareQuery->where('folder_id', $shareableId);
             }
-            $share->save();
 
-            // attach receivers into receives_shares pivot with permission
-            foreach ($existingUsers as $recipientId) {
-                // skip sharing to self
-                if ($recipientId == $user->id) continue;
-                DB::table('receives_shares')->insert([
-                    'user_id' => $recipientId,
-                    'share_id' => $share->id,
-                    'permission' => $permission,
-                ]);
+            $share = $shareQuery->first();
+
+            if (! $share) {
+                $share = new Share();
+                $share->shareable_type = $shareableType;
+                $share->user_id = $user->id; // owner
+                if ($shareableType === 'file') {
+                    $share->file_id = $shareableId;
+                } else {
+                    $share->folder_id = $shareableId;
+                }
+                $share->save();
+                $shareCreated = true;
+            }
+
+            // prepare recipient ids excluding owner and duplicates
+            $recipientIds = array_values(array_filter($existingUsers, function ($id) use ($user) {
+                return $id != $user->id;
+            }));
+
+            if (! empty($recipientIds)) {
+                // fetch existing pivot rows for these recipients
+                $existingPivots = DB::table('receives_shares')
+                    ->where('share_id', $share->id)
+                    ->whereIn('user_id', $recipientIds)
+                    ->pluck('permission', 'user_id')
+                    ->toArray();
+
+                $toAttach = [];
+                $toUpdate = [];
+                foreach ($recipientIds as $rid) {
+                    if (isset($existingPivots[$rid])) {
+                        // update permission on pivot if differs
+                        if ($existingPivots[$rid] !== $permission) {
+                            $toUpdate[$rid] = ['permission' => $permission];
+                            $updatedUserIds[] = $rid;
+                        } else {
+                            // already exists with same permission -> skipped
+                            $skippedUserIds[] = $rid;
+                        }
+                    } else {
+                        $toAttach[$rid] = ['permission' => $permission];
+                        $addedUserIds[] = $rid;
+                    }
+                }
+
+                if (! empty($toAttach)) {
+                    $share->receivers()->attach($toAttach);
+                }
+
+                foreach ($toUpdate as $rid => $pivot) {
+                    $share->receivers()->updateExistingPivot($rid, $pivot);
+                }
             }
 
             DB::commit();
@@ -92,13 +138,16 @@ class CreateShareController extends BaseApiController
             return $this->fail('Failed to create share', 500, 'SERVER_ERROR', ['exception' => $e->getMessage()]);
         }
 
-        // Build response shared_with
-        $sharedWith = User::whereIn('id', $existingUsers)
-            ->where('id', '!=', $user->id)
-            ->get(['id', 'name'])
-            ->map(function ($u) use ($permission) {
-                return ['user_id' => $u->id, 'name' => $u->name, 'permission' => $permission];
-            })->values();
+        // Build response: fetch actual recipients and their pivot permissions
+        $sharedWithRows = DB::table('receives_shares as rs')
+            ->join('users as u', 'rs.user_id', '=', 'u.id')
+            ->where('rs.share_id', $share->id)
+            ->select('u.id as user_id', 'u.name', 'rs.permission')
+            ->get();
+
+        $sharedWith = $sharedWithRows->map(function ($r) {
+            return ['user_id' => (int) $r->user_id, 'name' => $r->name, 'permission' => $r->permission];
+        })->values();
 
         $payload = [
             'share' => [
@@ -106,10 +155,13 @@ class CreateShareController extends BaseApiController
                 'shareable_type' => $share->shareable_type,
                 'shareable_id' => $shareableId,
                 'user_id' => $share->user_id,
-                'permission' => $share->permission,
                 'created_at' => $share->created_at->toDateTimeString(),
                 'shared_with' => $sharedWith,
             ],
+            'share_created' => $shareCreated,
+            'added_user_ids' => array_values($addedUserIds),
+            'updated_user_ids' => array_values($updatedUserIds),
+            'skipped_user_ids' => array_values($skippedUserIds),
         ];
 
         return $this->created($payload);

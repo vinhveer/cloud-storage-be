@@ -2,7 +2,7 @@
 @token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path — 200 OK
-GET {{baseUrl}}/api/files/46
+GET {{baseUrl}}/api/files/58
 Accept: application/json
 Authorization: Bearer {{token}}
 
