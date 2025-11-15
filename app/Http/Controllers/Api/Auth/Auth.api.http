@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=10|g7AKyeKxCoaMivVjqjOhJPiE0ose5VcyVi9XIfEief6dc45e
+@token=19|LUTBZd4FYasHBMzlGeawzCARBxyrr0kxW8HAIEQB315d8791
 
 ### Register
 POST {{base}}/api/auth/register
@@ -12,7 +12,7 @@ Content-Type: {{json}}
 {
   "name": "tritt",
   "email": "tritt666666@gmail.com",
-  "password": "12345678",
+  "password": "1234567811",
   "password_confirmation": "12345678",
   "device_name": "api"
 }
@@ -23,8 +23,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-  "email": "howe.myrna@gmail.com",
-  "password": "password",
+  "email": "admin@gmail.com",
+  "password": "12345678",
   "device_name": "api"
 }
 ### Login

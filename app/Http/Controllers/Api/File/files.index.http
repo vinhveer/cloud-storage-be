@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
-@folderId = 6
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
+@folderId = 29
 
 ### 1) Happy path — list my files (default pagination)
 GET {{baseUrl}}/api/files
@@ -13,7 +13,7 @@ Accept: application/json
 Authorization: Bearer {{token}}
 
 ### 3) Search by name (keyword)
-GET {{baseUrl}}/api/files?search=iste
+GET {{baseUrl}}/api/files?search=b
 Accept: application/json
 Authorization: Bearer {{token}}
 
@@ -23,7 +23,7 @@ Accept: application/json
 Authorization: Bearer {{token}}
 
 ### 5) Combined filters + pagination
-GET {{baseUrl}}/api/files?folder_id={{folderId}}&search=i&extension=png&page=1&per_page=10
+GET {{baseUrl}}/api/files?folder_id={{folderId}}&search=b&extension=pdf&page=1&per_page=10
 Accept: application/json
 Authorization: Bearer {{token}}
 

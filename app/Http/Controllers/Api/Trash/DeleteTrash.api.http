@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:8000
-@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token =  20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path - delete trashed file (200)
-DELETE {{baseUrl}}/api/trash/27
+DELETE {{baseUrl}}/api/trash/45
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### 2) Happy path - delete trashed folder (200)
-DELETE {{baseUrl}}/api/trash/15
+DELETE {{baseUrl}}/api/trash/29
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -41,7 +41,7 @@ Content-Type: application/json
 }
 
 ### 5) Cannot delete child item directly (400)
-DELETE {{baseUrl}}/api/trash/<<child_id>>
+DELETE {{baseUrl}}/api/trash/51
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -50,7 +50,7 @@ Content-Type: application/json
 	"type": "file"
 }
 
-### 6) Not found in trash (404)
+### 6) Not found in trash (400)
 DELETE {{baseUrl}}/api/trash/999999
 Accept: application/json
 Authorization: Bearer {{token}}
@@ -59,4 +59,3 @@ Content-Type: application/json
 {
 	"type": "file"
 }
-

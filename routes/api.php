@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Files
     Route::post('/files', [\App\Http\Controllers\Api\File\FileController::class, 'store']);
-    Route::get('/files', [\App\Http\Controllers\Api\File\FilterFilesController::class, 'index']);
+    Route::get('/files', [\App\Http\Controllers\Api\File\FileController::class, 'index']);
     Route::get('/files/recent', [\App\Http\Controllers\Api\File\FileController::class, 'recent']);
     Route::get('/files/shared-with-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedWithMe']);
     Route::get('/files/shared-by-me', [\App\Http\Controllers\Api\File\FileController::class, 'sharedByMe']);

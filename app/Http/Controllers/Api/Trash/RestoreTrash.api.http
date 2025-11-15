@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:8000
-@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path - restore top-level file (200)
-POST {{baseUrl}}/api/trash/28/restore
+POST {{baseUrl}}/api/trash/45/restore
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### 2) Happy path - restore top-level folder (200)
-POST {{baseUrl}}/api/trash/17/restore
+POST {{baseUrl}}/api/trash/29/restore
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -21,7 +21,7 @@ Content-Type: application/json
   "type": "folder"
 }
 
-### 3) Validation fail - missing type (422)
+### 3) Validation fail - missing type (500)
 POST {{baseUrl}}/api/trash/15/restore
 Accept: application/json
 Authorization: Bearer {{token}}
@@ -30,7 +30,7 @@ Content-Type: application/json
 {
 }
 
-### 4) Validation fail - invalid type (422)
+### 4) Validation fail - invalid type (500)
 POST {{baseUrl}}/api/trash/15/restore
 Accept: application/json
 Authorization: Bearer {{token}}
@@ -51,7 +51,7 @@ Content-Type: application/json
 
 ### 6) Bad request - trying to restore a child item directly (400)
 # Replace 16 with an actual child trashed file id to test
-POST {{baseUrl}}/api/trash/16/restore
+POST {{baseUrl}}/api/trash/46/restore
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json

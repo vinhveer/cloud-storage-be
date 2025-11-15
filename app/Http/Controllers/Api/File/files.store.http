@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token =12|IV7oVe7BA5HFs15B93Mja2SEhYTfBLCqaSzDwjvz0efa38d1
+@token =20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Upload file - success (root folder) — expects 201 Created
 POST {{baseUrl}}/api/files
@@ -28,7 +28,7 @@ Content-Type: application/pdf
 --MyBoundary
 Content-Disposition: form-data; name="folder_id"
 
-19
+29
 --MyBoundary
 Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
 
@@ -78,7 +78,7 @@ Content-Disposition: form-data; name="folder_id"
 999999
 --MyBoundary--
 
-### 6) Domain error - storage limit exceeded (409) ---------------chưa test-------------
+### 6) Domain error - storage limit exceeded (409)
 # Precondition: user's storage_limit or system default_storage_limit is set low, or storage_used close to limit.
 POST {{baseUrl}}/api/files
 Authorization: Bearer {{token}}
@@ -94,7 +94,7 @@ Content-Type: application/pdf
 --MyBoundary
 Content-Disposition: form-data; name="folder_id"
 
-7
+29
 --MyBoundary
 Content-Disposition: form-data; name="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3"
 

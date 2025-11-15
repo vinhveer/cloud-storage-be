@@ -1,13 +1,13 @@
 @baseUrl = http://localhost:8000
-@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path — 200 (binary download)
-GET {{baseUrl}}/api/files/19/download
+GET {{baseUrl}}/api/files/46/download
 Accept: application/octet-stream
 Authorization: Bearer {{token}}
 
 ### 2) Unauthenticated — 401
-GET {{baseUrl}}/api/files/1/download
+GET {{baseUrl}}/api/files/46/download
 Accept: application/octet-stream
 
 ### 3) File not found — 404

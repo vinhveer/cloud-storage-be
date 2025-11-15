@@ -1,7 +1,21 @@
 @baseUrl = http://localhost:8000
-@token = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### Get folder details
-GET {{baseUrl}}/api/folders/7
+GET {{baseUrl}}/api/folders/29
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Folder not found/not owned — 404
+GET {{baseUrl}}/api/folders/999999999
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Unauthenticated — 401
+GET {{baseUrl}}/api/folders/29
+Accept: application/json
+
+### Forbidden — 403
+GET {{baseUrl}}/api/folders/3
 Accept: application/json
 Authorization: Bearer {{token}}

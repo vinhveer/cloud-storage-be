@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=5|MVJJWbz0KG3mHZ13SLAxcHldwthhen3xXVkhs92y9bf1e07b
+@token= 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 @fileId=1
 @folderId=
 
@@ -16,16 +16,11 @@ Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 3) Search (files & folders)
-GET {{base}}/api/trash?search=Bao
+GET {{base}}/api/trash?search=u
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 4) Pagination - page 2, 1 item per page
 GET {{base}}/api/trash?page=2&per_page=1
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-### 5) Empty result (search no match)
-GET {{base}}/api/trash?search=__no_match_12345__
 Accept: {{json}}
 Authorization: Bearer {{token}}

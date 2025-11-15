@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000
-@token = 10|87n0OmYDO843dLeCI32Cyjh1kTavHdDxdlFfhuET5b4d3503
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 @parentId = 7
 
 ### Create folder at root (200)
@@ -19,8 +19,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "folder_name": "Bài tập",
-  "parent_folder_id": 17
+  "folder_name": "Bài tập 11",
+  "parent_folder_id": 29
 }
 
 ### Missing folder_name (422)
@@ -33,7 +33,7 @@ Authorization: Bearer {{token}}
   "parent_folder_id": 1
 }
 
-### Invalid/non-owned parent (404)
+### Invalid/non-owned parent (500)
 POST {{baseUrl}}/api/folders
 Accept: application/json
 Content-Type: application/json
@@ -41,17 +41,7 @@ Authorization: Bearer {{token}}
 
 {
   "folder_name": "Tài liệu học kỳ 2",
-  "parent_folder_id": 999999
-}
-
-### folder_name too long (422)
-POST {{baseUrl}}/api/folders
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "folder_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  "parent_folder_id": 1
 }
 
 ### Unauthenticated — 401

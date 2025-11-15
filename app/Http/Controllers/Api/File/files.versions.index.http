@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:8000
-@token = 1|2tOIy3hs20BTbzrqRdWuSbNMjk7oST9l9ftkQ06637453c2c
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path — 200 OK
-GET {{baseUrl}}/api/files/22/versions?page=1&per_page=20
+GET {{baseUrl}}/api/files/51/versions?page=1&per_page=20
 Accept: application/json
 Authorization: Bearer {{token}}
 

@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = 1|MhlWTJtQq0xDfPZTZ0w6Pt0qiEIyLDuvODBmpIbJd9ff1549
-@folderId = 7
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
+@folderId = 29
 
 ### Rename folder successfully (200)
 PUT {{baseUrl}}/api/folders/{{folderId}}

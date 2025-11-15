@@ -99,7 +99,27 @@ class FolderController extends BaseApiController
 
         try {
             if ($user) {
-                $result = $this->folderService->listContents($user, $id);
+                // Special-case: id === 0 => return root contents (folders/files with null parent)
+                if ($id === 0) {
+                    $folders = \App\Models\Folder::where('user_id', $user->id)
+                        ->whereNull('fol_folder_id')
+                        ->where('is_deleted', false)
+                        ->orderByDesc('id')
+                        ->get(['id', 'folder_name', 'created_at']);
+
+                    $files = \App\Models\File::where('user_id', $user->id)
+                        ->whereNull('folder_id')
+                        ->where('is_deleted', false)
+                        ->orderByDesc('id')
+                        ->get(['id', 'display_name', 'file_size', 'mime_type', 'file_extension', 'last_opened_at']);
+
+                    $result = [
+                        'folders' => $folders,
+                        'files' => $files,
+                    ];
+                } else {
+                    $result = $this->folderService->listContents($user, $id);
+                }
             } else {
                 // validate token against folder/public links
                 $this->folderService->checkAccessForFolder(null, $id, 'view', $token);

@@ -1,48 +1,38 @@
 @baseUrl = http://localhost:8000
-// user id 2
-@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+// user id 15
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 // user id 3
-@otherToken = 2|KKI5JXeI2zLPa6XUYvLXasQ9l9982sk4CxD35YuXd48b9c89
+@otherToken = 21|rFJVt1xln3wmkPn5AKez8GilVJL1y3yJko4G3kwc032a5ef9
 
 ### 1) Happy path — copy ALL versions (default) — 200 OK
-POST {{baseUrl}}/api/files/40/copy
+POST {{baseUrl}}/api/files/46/copy
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "destination_folder_id": 24
+  "destination_folder_id": null
 }
 
 ### 2) Happy path — copy ONLY latest version via query — 200 OK
-POST {{baseUrl}}/api/files/21/copy?only_latest=true
+POST {{baseUrl}}/api/files/46/copy?only_latest=true
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "destination_folder_id": 2
+  "destination_folder_id": null
 }
 
 ### 3) Happy path — copy ONLY latest version via JSON body — 200 OK
-POST {{baseUrl}}/api/files/23/copy
+POST {{baseUrl}}/api/files/46/copy
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "destination_folder_id": 2,
+  "destination_folder_id": null,
   "only_latest": true
-}
-
-### 4) Validation fail — 422 (missing destination_folder_id)
-POST {{baseUrl}}/api/files/4/copy
-Accept: application/json
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  
 }
 
 ### 5) Unauthenticated — 401
@@ -66,7 +56,7 @@ Content-Type: application/json
 
 ### 7) Forbidden — 403 (other user's file)
 # Use a token that belongs to a different user than the file owner
-POST {{baseUrl}}/api/files/21/copy
+POST {{baseUrl}}/api/files/35/copy
 Accept: application/json
 Authorization: Bearer {{otherToken}}
 Content-Type: application/json

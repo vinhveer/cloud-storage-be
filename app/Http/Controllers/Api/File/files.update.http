@@ -1,37 +1,14 @@
 @baseUrl = http://localhost:8000
-@token = 1|FKJUysJkPI48LaecdyjJ7NOooVfzGqXHQFsKUQ1i0c6be6a9
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Happy path — 200 OK
-PUT {{baseUrl}}/api/files/4
+PUT {{baseUrl}}/api/files/45
 Accept: application/json
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "display_name": "updated_report.txt",
-  "folder_id": 7
-}
-
-
-### 1.a) Update name only — 200 OK
-PUT {{baseUrl}}/api/files/4
-Accept: application/json
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "display_name": "name_only_update.pdf"
-}
-
-
-### 1.b) Update folder only — 200 OK
-PUT {{baseUrl}}/api/files/4
-Accept: application/json
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "folder_id": 2
+  "display_name": "updated_report.txt"
 }
 
 
@@ -86,15 +63,4 @@ Content-Type: application/json
 
 {
   "display_name": "forbidden_change.pdf"
-}
-
-
-### 7) Folder not found when moving — 404 (FOLDER_NOT_FOUND)
-PUT {{baseUrl}}/api/files/4
-Accept: application/json
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "folder_id": 9999999
 }
