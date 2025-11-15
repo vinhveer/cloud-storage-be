@@ -29,7 +29,15 @@ class DashboardController extends BaseApiController
             return $this->fail('Unauthenticated', 401, 'UNAUTHENTICATED');
         }
 
-        $data = $this->dashboard->getStats($user);
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date', 'date_format:Y-m-d'],
+        ]);
+
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
+
+        $data = $this->dashboard->getStats($user, $startDate, $endDate);
         return $this->ok($data);
     }
 }

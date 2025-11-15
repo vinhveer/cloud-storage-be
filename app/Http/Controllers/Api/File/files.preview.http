@@ -1,10 +1,10 @@
 @baseUrl = http://localhost:8000
-@token = 1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token = 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 @token_other = fdfdsf
 @publicToken = dfsfsdf
 
 ### 1) Happy path — authenticated PDF/image/video/audio preview (200)
-GET {{baseUrl}}/api/files/43/preview
+GET {{baseUrl}}/api/files/56/preview
 Accept: application/json
 Authorization: Bearer {{token}}
 
@@ -51,7 +51,7 @@ Authorization: Bearer {{token}}
 
 
 ### 7) TXT preview — converted to simple HTML preview (200)
-GET {{baseUrl}}/api/files/77/preview
+GET {{baseUrl}}/api/files/55/preview
 Accept: application/json
 Authorization: Bearer {{token}}
 

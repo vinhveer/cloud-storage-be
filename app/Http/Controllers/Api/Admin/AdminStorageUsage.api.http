@@ -1,7 +1,7 @@
 @base=http://localhost:8000
 @json=application/json
 @admin_token=14|849x59nB9k5iFZNTugiPTSvrnJGAJ4WzVmkniSmA528a12d8
-@user_token=15|ybjfAXtUW8y9rujGuPE5jFM8FfJbN8yv0suRcB0Pb83d2379
+@user_token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 GET {{base}}/api/admin/users/2/storage-usage
@@ -18,7 +18,7 @@ Accept: {{json}}
 Authorization: Bearer {{admin_token}}
 
 ### 4) Success -> expect 200 and usage object
-GET {{base}}/api/admin/users/7/storage-usage
+GET {{base}}/api/admin/users/15/storage-usage
 Accept: {{json}}
 Authorization: Bearer {{admin_token}}
 

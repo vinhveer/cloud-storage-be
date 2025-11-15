@@ -1,7 +1,7 @@
 @base=http://localhost:8000
 @json=application/json
 @admin_token=14|849x59nB9k5iFZNTugiPTSvrnJGAJ4WzVmkniSmA528a12d8
-@user_token=15|ybjfAXtUW8y9rujGuPE5jFM8FfJbN8yv0suRcB0Pb83d2379
+@user_token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 PUT {{base}}/api/admin/users/2/role
@@ -62,13 +62,13 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 7) Success -> expect 200 and updated user
-PUT {{base}}/api/admin/users/7/role
+PUT {{base}}/api/admin/users/12/role
 Accept: {{json}}
 Content-Type: {{json}}
 Authorization: Bearer {{admin_token}}
 
 {
-  "role": "user"
+  "role": "admin"
 }
 
 # Expected response example:

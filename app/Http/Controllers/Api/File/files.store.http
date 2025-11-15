@@ -8,10 +8,10 @@ Accept: application/json
 Content-Type: multipart/form-data; boundary=MyBoundary
 
 --MyBoundary
-Content-Disposition: form-data; name="file"; filename="BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf"
-Content-Type: application/pdf
+Content-Disposition: form-data; name="file"; filename="BaoCaoBaiTapNhom_Nhom2_CNPM_64CNTT2.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
 
-< ./BaoCaoTTCS_TranThanhTri_64132989_64CNTT3.pdf
+< ./BaoCaoBaiTapNhom_Nhom2_CNPM_64CNTT2.docx
 --MyBoundary--
 
 ### 2) Upload file - success (with folder_id) — expects 201 Created

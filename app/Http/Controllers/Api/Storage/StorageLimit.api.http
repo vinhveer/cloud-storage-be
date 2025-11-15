@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 #################################################################
 # 1) Unauthenticated -> expect 401
@@ -33,24 +33,9 @@ Authorization: Bearer {{token}}
 #   }
 # }
 
-#################################################################
-# 3) Authenticated -> user.storage_limit is NULL -> fallback to system default or 10GB
-#################################################################
-
-GET {{base}}/api/storage/limit
-Accept: {{json}}
-Authorization: Bearer {{token}}
-
-# Notes:
-# - To test fallback, set users.storage_limit = NULL and ensure `system_configs` contains
-#   ('default_storage_limit', '10737418240'). If system config missing, controller falls back to 10GB.
-# - To test computed storage_used: set users.storage_used = NULL and create files with is_deleted = 0.
-
-#################################################################
 # 4) Edge cases
 # - storage_used > storage_limit -> remaining = 0
 # - zero usage -> storage_used = 0, remaining = storage_limit
-#################################################################
 
 GET {{base}}/api/storage/limit
 Accept: {{json}}

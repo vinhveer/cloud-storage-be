@@ -43,7 +43,7 @@ class DashboardService
 
     
 
-    public function getStats(User $user): array
+    public function getStats(User $user, ?string $startDate = null, ?string $endDate = null): array
     {
         $fileTypeStats = File::where('user_id', $user->id)
             ->where('is_deleted', false)
@@ -62,29 +62,85 @@ class DashboardService
             ])
             ->all();
 
-        $days = 30;
-        $end = CarbonImmutable::now()->startOfDay();
-        $start = $end->subDays($days - 1);
+        // Determine timeline range based on provided params. If none provided,
+        // span the available FileVersion data for the user.
+        if ($startDate !== null || $endDate !== null) {
+            $start = $startDate ? CarbonImmutable::parse($startDate)->startOfDay() : null;
+            $end = $endDate ? CarbonImmutable::parse($endDate)->startOfDay() : null;
 
-        $rawTimeline = FileVersion::where('user_id', $user->id)
-            ->whereBetween('created_at', [$start, $end->endOfDay()])
-            ->select([
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('SUM(file_size) as uploaded'),
-            ])
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get()
-            ->keyBy('date');
+            if ($start === null && $end !== null) {
+                $start = $end;
+            }
+            if ($end === null && $start !== null) {
+                $end = $start;
+            }
 
-        $storageTimeline = [];
-        for ($i = 0; $i < $days; $i++) {
-            $date = $start->addDays($i)->format('Y-m-d');
-            $uploaded = (int) ($rawTimeline[$date]->uploaded ?? 0);
-            $storageTimeline[] = [
-                'date' => $date,
-                'uploaded' => $uploaded,
-            ];
+            if ($start === null || $end === null) {
+                $storageTimeline = [];
+            } else {
+                if ($start->greaterThan($end)) {
+                    [$start, $end] = [$end, $start];
+                }
+
+                $rawTimeline = FileVersion::where('user_id', $user->id)
+                    ->whereBetween('created_at', [$start, $end->endOfDay()])
+                    ->select([
+                        DB::raw('DATE(created_at) as date'),
+                        DB::raw('SUM(file_size) as uploaded'),
+                    ])
+                    ->groupBy('date')
+                    ->orderBy('date', 'asc')
+                    ->get()
+                    ->keyBy('date');
+
+                $days = $start->diffInDays($end) + 1;
+                $storageTimeline = [];
+                for ($i = 0; $i < $days; $i++) {
+                    $date = $start->addDays($i)->format('Y-m-d');
+                    $uploaded = (int) ($rawTimeline[$date]->uploaded ?? 0);
+                    $storageTimeline[] = [
+                        'date' => $date,
+                        'uploaded' => $uploaded,
+                    ];
+                }
+            }
+        } else {
+            // No date params provided: span all available data for the user.
+            $min = FileVersion::where('user_id', $user->id)->min('created_at');
+            $max = FileVersion::where('user_id', $user->id)->max('created_at');
+
+            if ($min === null || $max === null) {
+                $storageTimeline = [];
+            } else {
+                $start = CarbonImmutable::parse($min)->startOfDay();
+                $end = CarbonImmutable::parse($max)->startOfDay();
+
+                if ($start->greaterThan($end)) {
+                    [$start, $end] = [$end, $start];
+                }
+
+                $rawTimeline = FileVersion::where('user_id', $user->id)
+                    ->whereBetween('created_at', [$start, $end->endOfDay()])
+                    ->select([
+                        DB::raw('DATE(created_at) as date'),
+                        DB::raw('SUM(file_size) as uploaded'),
+                    ])
+                    ->groupBy('date')
+                    ->orderBy('date', 'asc')
+                    ->get()
+                    ->keyBy('date');
+
+                $days = $start->diffInDays($end) + 1;
+                $storageTimeline = [];
+                for ($i = 0; $i < $days; $i++) {
+                    $date = $start->addDays($i)->format('Y-m-d');
+                    $uploaded = (int) ($rawTimeline[$date]->uploaded ?? 0);
+                    $storageTimeline[] = [
+                        'date' => $date,
+                        'uploaded' => $uploaded,
+                    ];
+                }
+            }
         }
 
         $totalFiles = File::where('user_id', $user->id)

@@ -2,7 +2,7 @@
 
 @base=http://localhost:8000
 @json=application/json
-@token=7|nXWSU60I29wOSboriKIigR3e9L4chL2mXYd0SiF8971b8e16
+@token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 #################################################################
 # 1) Unauthenticated -> expect 401
@@ -31,7 +31,7 @@ Authorization: Bearer {{token}}
 # 4) Search only folders
 #################################################################
 
-GET {{base}}/api/search?type=folder&q=Root
+GET {{base}}/api/search?type=folder&q=r
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
@@ -39,7 +39,7 @@ Authorization: Bearer {{token}}
 # 5) Search by date range 
 #################################################################
 
-GET {{base}}/api/search?date_from=2025-10-01&date_to=2025-11-14
+GET {{base}}/api/search?date_from=2025-10-01&date_to=2025-11-15
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
@@ -47,7 +47,7 @@ Authorization: Bearer {{token}}
 # 7) Pagination
 #################################################################
 
-GET {{base}}/api/search?q=file&page=2&per_page=5
+GET {{base}}/api/search?q=r&page=1&per_page=2
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

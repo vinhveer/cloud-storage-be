@@ -3,7 +3,7 @@
 @base=http://localhost:8000
 @json=application/json
 # @token=YOUR_TOKEN_HERE
-@token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@token= 20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### Get dashboard overview
 # Lấy tổng quan dashboard
@@ -11,9 +11,26 @@ GET {{base}}/api/dashboard
 Accept: {{json}}
 Authorization: Bearer {{token}}
 
-### Get stats
-# Lấy thống kê
-GET {{base}}/api/dashboard/stats
+### Get stats with date range (both start and end)
+# Expect: 200 with timeline covering the range
+GET {{base}}/api/dashboard/stats?start_date=2025-11-01&end_date=2025-11-10
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get stats with only start_date (end_date omitted)
+# Expect: 200 with timeline for that single date
+GET {{base}}/api/dashboard/stats?start_date=2025-11-10
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get stats with only end_date (start_date omitted)
+# Expect: 200 with timeline for that single date
+GET {{base}}/api/dashboard/stats?end_date=2025-11-10
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### Get stats with invalid date format (should return validation error)
+GET {{base}}/api/dashboard/stats?start_date=10-11-2025
 Accept: {{json}}
 Authorization: Bearer {{token}}
 

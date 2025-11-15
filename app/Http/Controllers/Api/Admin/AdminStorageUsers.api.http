@@ -2,8 +2,8 @@
 
 @base=http://localhost:8000
 @json=application/json
-@admin_token=4|AW5x6wRrBpVmAYiZUbCmWXTn3kaHSOtdcKaF4hwhf414115a
-@user_token=1|qgBJzBJZBMwVoZXutfGw3RKw4NzMiSC7BdHNQ5yQf7ef15aa
+@admin_token=14|849x59nB9k5iFZNTugiPTSvrnJGAJ4WzVmkniSmA528a12d8
+@user_token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 #################################################################
 # 1) Unauthenticated -> expect 401
@@ -66,7 +66,7 @@ Authorization: Bearer {{admin_token}}
 # 4) Search by name or email
 #################################################################
 
-GET {{base}}/api/admin/storage/users?search=Nguyen
+GET {{base}}/api/admin/storage/users?search=tr
 Accept: {{json}}
 Authorization: Bearer {{admin_token}}
 
@@ -74,7 +74,7 @@ Authorization: Bearer {{admin_token}}
 # 5) Pagination parameters
 #################################################################
 
-GET {{base}}/api/admin/storage/users?page=2&per_page=5
+GET {{base}}/api/admin/storage/users?page=2&per_page=2
 Accept: {{json}}
 Authorization: Bearer {{admin_token}}
 

@@ -1,7 +1,7 @@
 @base=http://localhost:8000
 @json=application/json
 @admin_token=14|849x59nB9k5iFZNTugiPTSvrnJGAJ4WzVmkniSmA528a12d8
-@user_token=12|IV7oVe7BA5HFs15B93Mja2SEhYTfBLCqaSzDwjvz0efa38d1
+@user_token=20|y4xWD4RXu0vkC19dloofc7Th167rQyMTj71KHxwjd55bcd1f
 
 ### 1) Unauthenticated -> expect 401
 PUT {{base}}/api/admin/users/2
