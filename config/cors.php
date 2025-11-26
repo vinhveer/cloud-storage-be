@@ -18,8 +18,15 @@ return [
     // Methods allowed for CORS
     'allowed_methods' => ['*'],
 
-    // Origins allowed to make requests. Use FRONTEND_URL env var by default
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    // Origins allowed to make requests. Always allow local dev and production frontend
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'https://cloudfe.nguyenquangvinh.id.vn'),
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:5174',
+        'http://127.0.0.1:5174',
+        'https://cloudfe.nguyenquangvinh.id.vn',
+    ],
 
     // Patterns to match allowed origins
     'allowed_origins_patterns' => [],

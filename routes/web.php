@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 // Redirect password reset links to frontend reset page
 Route::get('/password/reset/{token}', function ($token) {
-    $frontend = rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/');
+    $frontend = rtrim(env('FRONTEND_URL', 'https://cloudfe.nguyenquangvinh.id.vn'), '/');
     $email = request()->query('email');
     $url = $frontend . '/reset-password?token=' . urlencode($token);
     if ($email) {
@@ -13,10 +13,5 @@ Route::get('/password/reset/{token}', function ($token) {
     return redirect()->away($url);
 })->name('password.reset');
 
-Route::get('/docs', function () {
-    // Nếu bạn muốn có UI luôn:
-    return view('l5-swagger::index');
-
-    // Hoặc nếu chỉ cần cho nó có route, không cần UI:
-    // return response()->json(['message' => 'API docs UI is disabled on this environment.']);
-})->name('l5-swagger.default.docs');    
+Route::get('/docs', [SwaggerController::class, 'docs'])
+    ->name('l5-swagger.default.docs');
