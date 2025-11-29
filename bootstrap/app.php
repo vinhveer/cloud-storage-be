@@ -15,6 +15,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(App\Http\Middleware\ForceJson::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Handle 404 Not Found routes (must be before generic Throwable handler)
+        $exceptions->renderable(function (Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'error' => [
+                        'message' => 'Route not found',
+                        'code' => 'ROUTE_NOT_FOUND',
+                        'errors' => null,
+                    ],
+                    'meta' => null,
+                ], 404);
+            }
+
+            return response()->view('errors.404', [], 404);
+        });
+
         $exceptions->renderable(function (Throwable $e, $request) {
             if ($e instanceof App\Exceptions\ApiException) {
                 return response()->json([

@@ -159,16 +159,30 @@ class FileController extends BaseApiController
         } catch (\App\Exceptions\DomainValidationException $e) {
             $message = $e->getMessage();
             $lower = strtolower($message);
+            
+            // If request expects JSON (API call), return JSON response
+            if (request()->expectsJson() || request()->is('api/*')) {
+                if (str_contains($lower, 'not found')) {
+                    return $this->fail($message, 404, 'FILE_NOT_FOUND');
+                }
+                if (str_contains($lower, 'not accessible') || str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                    return $this->fail($message, 403, 'FORBIDDEN');
+                }
+                if (str_contains($lower, 'content not found') || str_contains($lower, 'version not found')) {
+                    return $this->fail($message, 404, 'FILE_CONTENT_NOT_FOUND');
+                }
+                return $this->fail($message, 400, 'BAD_REQUEST');
+            }
+            
+            // Otherwise, return HTML error page for browser requests
+            $statusCode = 400;
             if (str_contains($lower, 'not found')) {
-                return $this->fail($message, 404, 'FILE_NOT_FOUND');
+                $statusCode = 404;
+            } elseif (str_contains($lower, 'not accessible') || str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
+                $statusCode = 403;
             }
-            if (str_contains($lower, 'not accessible') || str_contains($lower, 'not owned') || str_contains($lower, 'forbidden')) {
-                return $this->fail($message, 403, 'FORBIDDEN');
-            }
-            if (str_contains($lower, 'content not found') || str_contains($lower, 'version not found')) {
-                return $this->fail($message, 404, 'FILE_CONTENT_NOT_FOUND');
-            }
-            return $this->fail($message, 400, 'BAD_REQUEST');
+            
+            return response()->view('errors.download-error', ['message' => $message], $statusCode);
         }
 
         // Use Storage download to return a BinaryFileResponse with proper headers
@@ -176,6 +190,15 @@ class FileController extends BaseApiController
         $path = $info['path'];
         $downloadName = $info['download_name'];
         $mime = $info['mime'] ?? 'application/octet-stream';
+
+        // Check if file exists on disk
+        if (!$disk->exists($path)) {
+            $message = 'File content not found on storage';
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return $this->fail($message, 404, 'FILE_CONTENT_NOT_FOUND');
+            }
+            return response()->view('errors.download-error', ['message' => $message], 404);
+        }
 
         // The Storage::download will set Content-Disposition: attachment; filename="..."
         // Mark file as opened (throttled inside service) since we are delivering content.
@@ -185,7 +208,15 @@ class FileController extends BaseApiController
             // Non-fatal: don't prevent download if marking fails.
         }
 
-        return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
+        try {
+            return $disk->download($path, $downloadName, ['Content-Type' => $mime]);
+        } catch (\Exception $e) {
+            $message = 'Failed to download file: ' . $e->getMessage();
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return $this->fail($message, 500, 'DOWNLOAD_ERROR');
+            }
+            return response()->view('errors.download-error', ['message' => 'Không thể tải file. Vui lòng thử lại sau.'], 500);
+        }
     }
     public function update(UpdateFileRequest $request, int $id)
     {
