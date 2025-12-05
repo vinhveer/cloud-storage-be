@@ -54,7 +54,7 @@ class PublicLinkController extends BaseApiController
 
     /**
      * 8.6. API: GET /api/public-links/{token}/preview
-     * Description: Xem trước file qua public link (public)
+     * Description: Xem trước file hoặc folder qua public link (public)
      */
     public function preview(string $token)
     {
@@ -80,6 +80,12 @@ class PublicLinkController extends BaseApiController
             return $this->fail($e->getMessage(), 400, 'BAD_REQUEST');
         }
 
+        // Handle folder preview
+        if ($result['shareable_type'] === 'folder') {
+            return $this->ok($result);
+        }
+
+        // Handle file preview
         $file = $result['file'];
         return $this->ok([
             'shareable_type' => 'file',
@@ -95,12 +101,12 @@ class PublicLinkController extends BaseApiController
 
     /**
      * 8.7. API: GET /api/public-links/{token}/download
-     * Description: Tải file qua public link (public, permission = download)
+     * Description: Tải file hoặc folder qua public link (public, permission = download)
      */
     public function download(string $token)
     {
         try {
-            $url = $this->service->buildDownloadUrl($token);
+            $result = $this->service->buildDownloadUrl($token);
         } catch (DomainValidationException $e) {
             $lower = strtolower($e->getMessage());
             if (str_contains($lower, 'not for a file')) {
@@ -117,7 +123,11 @@ class PublicLinkController extends BaseApiController
 
         return $this->ok([
             'success' => true,
-            'download_url' => $url,
+            'shareable_type' => $result['shareable_type'],
+            'download_url' => $result['download_url'],
+            'name' => $result['shareable_type'] === 'folder' 
+                ? $result['folder_name'] 
+                : $result['file_name'],
         ]);
     }
 

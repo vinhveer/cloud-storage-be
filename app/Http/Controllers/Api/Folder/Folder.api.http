@@ -1,0 +1,66 @@
+### Folder API Tests
+### Base URL and tokens
+@baseUrl=http://localhost:8000
+@json=application/json
+@token=YOUR_AUTH_TOKEN_HERE
+@publicToken=YOUR_PUBLIC_LINK_TOKEN_HERE
+@folderId=1
+
+### ============================================
+### FOLDER PREVIEW API
+### ============================================
+
+### 1. Preview folder (authenticated user)
+GET {{baseUrl}}/api/folders/{{folderId}}/preview
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 2. Preview folder via public link token
+GET {{baseUrl}}/api/folders/{{folderId}}/preview?token={{publicToken}}
+Accept: {{json}}
+
+### 3. Preview folder - Unauthenticated (expect 401)
+GET {{baseUrl}}/api/folders/{{folderId}}/preview
+Accept: {{json}}
+
+### 4. Preview folder - Not found (expect 404)
+GET {{baseUrl}}/api/folders/999999/preview
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+
+### ============================================
+### FOLDER DOWNLOAD (ZIP) API
+### ============================================
+
+### 5. Download folder as ZIP (authenticated user)
+GET {{baseUrl}}/api/folders/{{folderId}}/download
+Accept: application/zip
+Authorization: Bearer {{token}}
+
+### 6. Download folder via public link token (requires download permission)
+GET {{baseUrl}}/api/folders/{{folderId}}/download?token={{publicToken}}
+Accept: application/zip
+
+### 7. Download folder - Unauthenticated (expect 401)
+GET {{baseUrl}}/api/folders/{{folderId}}/download
+Accept: application/zip
+
+### 8. Download folder - Forbidden (view-only permission, expect 403)
+# Use a public link token with only 'view' permission
+GET {{baseUrl}}/api/folders/{{folderId}}/download?token=VIEW_ONLY_TOKEN
+Accept: application/zip
+
+
+### ============================================
+### FOLDER CONTENTS API (existing)
+### ============================================
+
+### 9. Get folder contents (authenticated)
+GET {{baseUrl}}/api/folders/{{folderId}}/contents
+Accept: {{json}}
+Authorization: Bearer {{token}}
+
+### 10. Get folder contents via public link
+GET {{baseUrl}}/api/folders/{{folderId}}/contents?token={{publicToken}}
+Accept: {{json}}

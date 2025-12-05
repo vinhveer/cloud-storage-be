@@ -41,7 +41,7 @@ class ReceivedSharesController extends BaseApiController
                 });
             })
             ->selectRaw(
-                'sh.id as share_id, sh.shareable_type, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.user_id as owner_user_id, u.name as owner_name, rs.permission as permission, sh.created_at as shared_at'
+                'sh.id as share_id, sh.shareable_type, sh.file_id, sh.folder_id, COALESCE(f.display_name, fo.folder_name) as shareable_name, sh.user_id as owner_user_id, u.name as owner_name, rs.permission as permission, sh.created_at as shared_at'
             );
 
         $total = (int) DB::table(DB::raw("({$baseQB->toSql()}) as t"))
@@ -54,9 +54,17 @@ class ReceivedSharesController extends BaseApiController
             ->get();
 
         $data = $rows->map(function ($r) {
+            $shareableId = null;
+            if ($r->shareable_type === 'file' && $r->file_id !== null) {
+                $shareableId = (int) $r->file_id;
+            } elseif ($r->shareable_type === 'folder' && $r->folder_id !== null) {
+                $shareableId = (int) $r->folder_id;
+            }
+
             return [
                 'share_id' => (int) $r->share_id,
                 'shareable_type' => $r->shareable_type,
+                'shareable_id' => $shareableId,
                 'shareable_name' => $r->shareable_name,
                 'owner' => [
                     'user_id' => (int) $r->owner_user_id,

@@ -152,6 +152,27 @@ class FileService
 				}
 			}
 
+			// Check if file with same name exists in the same folder
+			$existingFile = \App\Models\File::where('user_id', $user->id)
+				->where('display_name', $display)
+				->where('is_deleted', false);
+			if ($folderId === null) {
+				$existingFile = $existingFile->whereNull('folder_id');
+			} else {
+				$existingFile = $existingFile->where('folder_id', $folderId);
+			}
+			$existingFile = $existingFile->first();
+
+			// If file with same name exists, create new version instead of new file
+			if ($existingFile) {
+				$version = $this->createVersion($user, $existingFile->id, $uploadedFile, 'update', null);
+				$file = $existingFile->fresh();
+				// Attach version info to file object for controller to use
+				$file->new_version = $version;
+				$file->is_new_version = true;
+				return $file;
+			}
+
 			// Check user storage quota – fall back to system default_storage_limit if user-specific limit not set/0
 			// Read default storage limit (in bytes); user->storage_limit takes precedence if set
 			$systemDefaultLimit = (int) SystemConfig::getBytes('default_storage_limit', 0);
@@ -201,7 +222,10 @@ class FileService
 			// Update user's storage usage
 			$user->increment('storage_used', $size);
 
-			return $file->fresh();
+			$file = $file->fresh();
+			// Mark as new file (not version update)
+			$file->is_new_version = false;
+			return $file;
 		});
 	}
 

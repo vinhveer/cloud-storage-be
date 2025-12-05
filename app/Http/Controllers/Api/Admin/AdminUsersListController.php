@@ -18,11 +18,6 @@ class AdminUsersListController extends BaseApiController
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // Basic check for admin role; route is also behind admin middleware, but double-check
-        if (! isset($user->role) || $user->role !== 'admin') {
-            return response()->json(['message' => 'Forbidden.'], 403);
-        }
-
         $search = trim((string) $request->query('search', ''));
         $page = max(1, (int) $request->query('page', 1));
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));

@@ -42,8 +42,11 @@ class FileController extends BaseApiController
         }
 
         // Prepare response payload per requirement
+        $isNewVersion = isset($fileModel->is_new_version) && $fileModel->is_new_version === true;
+        $message = $isNewVersion ? 'New version uploaded successfully.' : 'File uploaded successfully.';
+        
         $payload = [
-            'message' => 'File uploaded successfully.',
+            'message' => $message,
             'file' => [
                 'file_id' => $fileModel->id,
                 'display_name' => $fileModel->display_name,
@@ -55,6 +58,18 @@ class FileController extends BaseApiController
                 'created_at' => $fileModel->created_at,
             ],
         ];
+
+        // Include version info if new version was created
+        if ($isNewVersion && isset($fileModel->new_version)) {
+            $version = $fileModel->new_version;
+            $payload['version'] = [
+                'version_id' => $version->id,
+                'version_number' => (int) $version->version_number,
+                'action' => $version->action,
+                'file_size' => (int) $version->file_size,
+                'created_at' => $version->created_at ? $version->created_at->toIso8601String() : null,
+            ];
+        }
 
         return $this->created($payload);
     }

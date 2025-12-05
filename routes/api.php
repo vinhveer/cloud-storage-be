@@ -104,6 +104,12 @@ Route::get('/folders/{id}/breadcrumb', [\App\Http\Controllers\Api\Folder\FolderC
 Route::get('/folders/{id}/contents', [\App\Http\Controllers\Api\Folder\FolderController::class, 'contents'])
     ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
+Route::get('/folders/{id}/preview', [\App\Http\Controllers\Api\Folder\FolderPreviewController::class, 'preview'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
+Route::get('/folders/{id}/download', [\App\Http\Controllers\Api\Folder\FolderDownloadController::class, 'download'])
+    ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
+
 Route::get('/folders/{id}', [\App\Http\Controllers\Api\Folder\FolderController::class, 'show'])
     ->middleware(\App\Http\Middleware\AuthOrPublicLink::class);
 
@@ -133,11 +139,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/search/suggestions', [\App\Http\Controllers\Api\Search\SearchSuggestionsController::class, 'suggestions']);
 });
 
-// Admin group (auth + admin middleware placeholder)
-Route::middleware(['auth:sanctum', 'can:admin']) // TODO: replace with actual admin gate
+// Admin users list (GET) - allow any authenticated user
+Route::middleware(['auth:sanctum'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/users', [\App\Http\Controllers\Api\Admin\AdminUsersListController::class, 'index']);
+    });
+
+// Other admin routes (auth + admin middleware)
+Route::middleware(['auth:sanctum', 'can:admin']) // TODO: replace with actual admin gate
+    ->prefix('admin')
+    ->group(function () {
         Route::get('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUserDetailController::class, 'show']);
         Route::post('/users', [\App\Http\Controllers\Api\Admin\CreateUserController::class, 'store']);
         Route::put('/users/{id}', [\App\Http\Controllers\Api\Admin\AdminUpdateUserController::class, 'update']);
